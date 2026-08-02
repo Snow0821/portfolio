@@ -1,0 +1,40 @@
+.profile > section > article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.profile > section > h2 + article {
+  border-top-color: var(--color-text);
+}
+
+.profile > section > article > h3,
+.profile > section > article > p {
+  margin: 0;
+}
+
+.profile > section > article > h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.profile > section > article > p {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .profile > section > article {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .profile > section > article > p {
+    white-space: normal;
+  }
+}

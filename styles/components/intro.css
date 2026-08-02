@@ -1,0 +1,32 @@
+.profile > .intro {
+  padding: clamp(6rem, 16vw, 10rem) 0 clamp(4.5rem, 10vw, 7rem);
+}
+
+.intro h1 {
+  margin: 0 0 2rem;
+  font-family: var(--font-serif);
+  font-size: clamp(3.75rem, 12vw, 7rem);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+}
+
+.intro p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  .profile > .intro {
+    padding: 5rem 0 4rem;
+  }
+
+  .intro h1 {
+    margin-bottom: 1.5rem;
+  }
+}

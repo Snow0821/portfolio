@@ -1,0 +1,19 @@
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  body > header {
+    display: none;
+  }
+
+  .profile {
+    width: 100%;
+  }
+
+  .profile > section,
+  .profile > section > article,
+  .profile > section > ul > li {
+    break-inside: avoid;
+  }
+}

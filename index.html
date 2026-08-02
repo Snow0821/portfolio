@@ -1,73 +1,35 @@
-<html>
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      name="description"
+      content="AI 독립 연구자이자 프리랜서 강사 Snow Choi의 포트폴리오"
+    >
 
-<head>
-    <title> Snow Choi </title>
-    <link rel="stylesheet" href="./style.css">
-</head>
+    <title>Snow Choi</title>
+    <link rel="stylesheet" href="./styles/style.css">
+  </head>
 
-<body>
+  <body>
     <header>
-        <a href="/">Snow Choi</a>
+      <a href="./index.html">Snow Choi</a>
     </header>
 
-    <main>
-        <section class = "intro">
-            <h1>Snow Choi</h1>
-            <p>Independent Researcher</p>
-            <p>IT Lecturer</p>
-        </section>
-        <section class = "about">
-            <h2>About</h2>
-            <p>AI를 연구하고, 전파하는 일을 합니다. </p>
-            <h3>Research Interests</h3>
-            <ul>
-                <li>Interpretable AI (해석가능한 인공지능)</li>
-                <li>Neural Network Quantization (뉴럴네트워크 양자화)</li>
-                <li>Discrete Learning (이산 학습)</li>
-            </ul>
-        </section>
-        <section class="research">
-        <h2>Research</h2>
-
-        <ul>
-          <li>
-            Learning to Wire: End-to-End Operand Selection for
-            Symbolic Logic Networks - IJCNN 2026
-          </li>
-          <li>
-            Binarization of Ternary ViT on Image Classification - KICS Winter Conference 2025
-          </li>
-          <li>
-            Comparing Accuracy of Sign-Quantized Layers with
-            Linear Layers in Small Models - KICS Summer Conference 2024
-          </li>
-        </ul>
+    <main class="profile">
+      <section class="intro">
+        <h1>Snow Choi</h1>
+        <p>Independent Researcher</p>
+        <p>IT Lecturer</p>
       </section>
 
-      <section class="career">
-        <h2>Teaching Experience</h2>
-
-        <ul>
-          <li>코디세이 퍼실리테이터 - 모두의연구소, 2026</li>
-          <li>LG Innotek AI/AX Lv.2 강사 - 엘리스, 2026</li>
-          <li>T-Academy 알고리즘 특강 강사 - 민코딩, 2025</li>
-          <li>코더랜드 강사 — 코더랜드, 2023 - 현재</li>
-        </ul>
-      </section>
-
-      <section class="academic">
-        <h2>Education</h2>
-
-        <ul>
-          <li>
-            국민대학교 소프트웨어융합대학원 인공지능전공 석사, 2025
-          </li>
-          <li>
-            한동대학교 전산전자공학부 학사, 2019
-          </li>
-        </ul>
-      </section>
+      <section-include src="./sections/about.html"></section-include>
+      <section-include src="./sections/research.html"></section-include>
+      <section-include src="./sections/career.html"></section-include>
+      <section-include src="./sections/academic.html"></section-include>
     </main>
-</body>
 
+    <script type="module" src="./components/section-include.js"></script>
+  </body>
 </html>
