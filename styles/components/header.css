@@ -1,4 +1,7 @@
 body > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 1.25rem max(
       var(--space-page),
       calc((100vw - var(--content-width)) / 2)
@@ -16,8 +19,27 @@ body > header a:hover {
   color: var(--color-accent);
 }
 
+body > header nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+body > header nav a {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+body > header nav a[aria-current="page"] {
+  color: var(--color-text);
+}
+
 @media (max-width: 560px) {
   body > header {
     padding-block: 1rem;
+  }
+
+  body > header nav {
+    gap: 1rem;
   }
 }

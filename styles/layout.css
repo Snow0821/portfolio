@@ -1,4 +1,5 @@
-.profile {
+.profile,
+.seminars {
   width: min(calc(100% - (var(--space-page) * 2)), var(--content-width));
   margin: 0 auto;
 }
