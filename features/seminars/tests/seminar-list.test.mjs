@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 function createDownloadControl(topicId, mode) {
-  const attributes = new Map();
+  const attributes = new Map([["target", "_blank"]]);
   const classes = new Set();
   const handlers = new Map();
   const icon = { textContent: "📥" };
@@ -23,8 +23,10 @@ function createDownloadControl(topicId, mode) {
       ...initial, defaultPrevented: false,
       preventDefault() { this.defaultPrevented = true; },
     };
-    control.events.push({ type, event });
-    return { event, result: handlers.get(type)?.(event) };
+    const record = { type, event, target: control.getAttribute("target") };
+    control.events.push(record);
+    record.result = handlers.get(type)?.(event);
+    return { event, result: record.result };
   };
   control.click = () => dispatch("click");
   control.keydown = (key) => dispatch("keydown", { key });
@@ -148,7 +150,27 @@ test("activates an ARIA PDF button with Space but leaves Enter native", async ()
   assert.equal(space.event.defaultPrevented, true);
   assert.deepEqual(button.events.map(({ type }) => type), ["keydown", "keydown", "click"]);
   assert.equal(button.events[2].event.defaultPrevented, false);
+  assert.equal(button.events[2].target, "_self");
+  assert.equal(button.getAttribute("target"), "_blank");
   await space.result;
+});
+
+test("keeps direct PDF export intercepted when Space activates it", async () => {
+  const { renderSeminarList } = await import("../components/seminar-list.js");
+  let downloadCalls = 0;
+  const button = createDownloadControl("sample", "vertical");
+  const container = { innerHTML: "", querySelectorAll: () => [button] };
+  renderSeminarList(container, {
+    seminars: [], paths: {}, canDownloadDirectly: () => true,
+    onDownload: () => { downloadCalls += 1; },
+  });
+
+  const space = button.keydown(" ");
+  assert.equal(space.event.defaultPrevented, true);
+  assert.equal(button.events[1].target, "_blank");
+  assert.equal(button.events[1].event.defaultPrevented, true);
+  assert.equal(downloadCalls, 1);
+  await button.events[1].result;
 });
 
 test("restores download controls after a failed callback", async () => {

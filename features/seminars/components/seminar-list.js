@@ -81,7 +81,18 @@ export function renderSeminarList(
     button.addEventListener("keydown", (event) => {
       if (event.key !== " ") return;
       event.preventDefault();
-      button.click();
+      if (canDownloadDirectly()) {
+        button.click();
+        return;
+      }
+      const originalTarget = button.getAttribute("target");
+      button.setAttribute("target", "_self");
+      try {
+        button.click();
+      } finally {
+        if (originalTarget === null) button.removeAttribute("target");
+        else button.setAttribute("target", originalTarget);
+      }
     });
   }
 }
