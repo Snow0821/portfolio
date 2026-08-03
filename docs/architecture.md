@@ -127,7 +127,7 @@ portfolio/
 │       └── 2026.md
 │
 └── tests/
-    └── verify-structure.mjs
+    └── verify_structure.py
 ```
 
 ## 4. 영역별 책임
@@ -204,7 +204,7 @@ service → data 또는 전달받은 DOM 렌더러
 - PDF 실패 시 임시 DOM을 항상 제거한다.
 - 다운로드 버튼에 주제와 형식을 포함한 접근성 이름을 제공한다.
 - HTML에서 그대로 노출되는 Markdown 강조 문법을 시맨틱 HTML로 교체한다.
-- 오래된 PowerShell 검증기를 Node 표준 라이브러리만 사용하는 `tests/verify-structure.mjs`로 교체한다.
+- 오래된 PowerShell 검증기를 Python 표준 라이브러리만 사용하는 `tests/verify_structure.py`로 교체한다.
 - `README.md`, 현재 문서와 연도별 작업 이력을 함께 갱신한다.
 
 ## 8. 검증 기준
