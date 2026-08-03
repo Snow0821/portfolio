@@ -5,5 +5,8 @@
 @import "./components/content-section.css";
 @import "./components/entry.css";
 @import "./components/seminar-card.css";
-@import "./components/presentation.css";
+@import "./components/presentation/header.css";
+@import "./components/presentation/layout.css";
+@import "./components/presentation/slide-card.css";
+@import "./components/presentation/reading-document.css";
 @import "./print.css";

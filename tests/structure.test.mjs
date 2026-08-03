@@ -22,6 +22,7 @@ test("legacy structure and references are fully removed", () => {
     "components/slide-header.js",
     "components/slide-renderer.js",
     "services/pdf-exporter.js",
+    "styles/components/presentation.css",
     "styles/style.css",
     "styles/level1-main",
     "styles/level2-navigation",
@@ -95,4 +96,35 @@ test("local HTML and CSS references resolve to existing files", () => {
   }
 
   assert.deepEqual(missingReferences, []);
+});
+
+test("presentation styles load by responsibility in cascade order", () => {
+  const styleFiles = [
+    "styles/components/presentation/header.css",
+    "styles/components/presentation/layout.css",
+    "styles/components/presentation/slide-card.css",
+    "styles/components/presentation/reading-document.css",
+  ];
+  const missingFiles = styleFiles.filter(
+    (path) => !existsSync(resolve(projectRoot, path)),
+  );
+  assert.deepEqual(missingFiles, []);
+
+  const statements = [
+    '@import "./components/presentation/header.css";',
+    '@import "./components/presentation/layout.css";',
+    '@import "./components/presentation/slide-card.css";',
+    '@import "./components/presentation/reading-document.css";',
+  ];
+  const mainCss = readFileSync(
+    resolve(projectRoot, "styles/main.css"),
+    "utf8",
+  );
+  let previousIndex = -1;
+  for (const statement of statements) {
+    const currentIndex = mainCss.indexOf(statement);
+    assert.ok(currentIndex > previousIndex, `${statement} import order`);
+    previousIndex = currentIndex;
+  }
+  assert.doesNotMatch(mainCss, /components\/presentation\.css/);
 });

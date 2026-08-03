@@ -17,7 +17,10 @@ test("presentation package resolves modes, topics, and reactive header output", 
     "components/presentation/document-renderer.js",
     "components/presentation/slide-header.js",
     "components/presentation/slide-renderer.js",
-    "styles/components/presentation.css",
+    "styles/components/presentation/header.css",
+    "styles/components/presentation/layout.css",
+    "styles/components/presentation/slide-card.css",
+    "styles/components/presentation/reading-document.css",
   ];
   const missingFiles = requiredFiles.filter(
     (path) => !existsSync(resolve(projectRoot, path)),

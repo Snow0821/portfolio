@@ -21,7 +21,7 @@ renderer와 header는 `utils/html.js`만 사용한다. 데이터 모듈과 페�
 
 ## Styles
 
-연결된 공통 스타일은 현재 `styles/components/presentation.css`가 소유한다. 책임별 분리 후에도 presentation 모듈의 스타일로 유지하며 `header → layout → slide-card → reading-document` 순서를 사용한다.
+연결된 공통 스타일은 `styles/components/presentation/`이 소유하며 `header → layout → slide-card → reading-document` 순서로 불러온다. 각 반응형 규칙은 소유 컴포넌트의 파일에 함께 둔다.
 
 ## Errors
 
