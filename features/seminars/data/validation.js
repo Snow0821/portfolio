@@ -169,13 +169,13 @@ function validateContentSlide(slide, path, blockOwners, coveredRoles, errors) {
     errors.push(`${path}.blockIds must reference at least one section block`);
     return;
   }
+  let hasOwnedBlock = false;
   slide.blockIds.forEach((blockId, index) => {
     if (!isText(blockId) || !blockOwners.has(blockId)) {
       errors.push(`${path}.blockIds[${index}] missing block reference`);
-    } else if (blockOwners.get(blockId) !== slide.sectionRole) {
-      errors.push(`${path}.blockIds[${index}] must belong to ${slide.sectionRole}`);
-    }
+    } else if (blockOwners.get(blockId) === slide.sectionRole) hasOwnedBlock = true;
   });
+  if (!hasOwnedBlock) errors.push(`${path}.blockIds must include a ${slide.sectionRole} block`);
 }
 
 export function validateSeminar(topic) {

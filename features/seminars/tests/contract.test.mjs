@@ -29,6 +29,12 @@ test("rejects a missing presentation block reference", () => {
   assert.throws(() => validateSeminar(topicWithMissingBlockReference), /missing block reference/);
 });
 
+test("accepts known references from another section after an owned reference", () => {
+  const topic = createValidSeminar();
+  topic.presentation.slides[2].blockIds.push("sample-prior-art");
+  assert.equal(validateSeminar(topic), topic);
+});
+
 test("requires alt text for non-decorative images", () => {
   const topicWithUnlabelledImage = createValidSeminar();
   topicWithUnlabelledImage.sections[0].blocks[0] = {
