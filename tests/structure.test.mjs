@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { relative, resolve, sep } from "node:path";
 import test from "node:test";
 
 import {
@@ -54,7 +54,7 @@ test("legacy structure and references are fully removed", () => {
     /styles\/style\.css/,
   ];
   const sourceFiles = collectFiles(projectRoot).filter((path) => {
-    const relativePath = path.slice(projectRoot.length + 1);
+    const relativePath = relative(projectRoot, path).split(sep).join("/");
     return (
       /\.(?:html|css|js|mjs|md)$/.test(path) &&
       relativePath !== "tests/structure.test.mjs" &&
