@@ -150,8 +150,7 @@ portfolio/
 │   ├── decisions.md
 │   ├── status.md
 │   ├── superpowers/
-│   │   └── specs/
-│   │       └── 2026-08-03-project-modularization-and-seminar-handoff-design.md
+│   │   └── specs/          # 작업 중인 임시 설계 사양
 │   └── history/
 │       └── 2026.md
 │
