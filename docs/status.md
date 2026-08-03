@@ -2,7 +2,7 @@
 
 ## 진행 중
 
-- 일반 모듈화 inline 실행 중 — Task 3 presentation 모듈 완료, Task 4 PDF 서비스 진행 예정
+- 일반 모듈화 inline 실행 중 — Task 4 PDF 서비스 완료, Task 5 프레젠테이션 CSS 진행 예정
 
 ## 확인된 문제
 

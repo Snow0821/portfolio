@@ -8,12 +8,25 @@ import { createFakeDocument } from "./helpers/fake-dom.mjs";
 import { projectRoot } from "./helpers/files.mjs";
 
 test("PDF service creates the real horizontal structure and always cleans up", async () => {
-  const servicePath = resolve(projectRoot, "services/pdf-exporter.js");
-  assert.equal(existsSync(servicePath), true);
+  const requiredFiles = [
+    "services/pdf/README.md",
+    "services/pdf/exporter.js",
+    "services/pdf/render-zone.js",
+  ];
+  const missingFiles = requiredFiles.filter(
+    (path) => !existsSync(resolve(projectRoot, path)),
+  );
+  assert.deepEqual(missingFiles, []);
 
-  const serviceUrl = pathToFileURL(servicePath);
-  const { createPdfRenderZone, exportSeminarPdf } = await import(
-    serviceUrl.href
+  const renderZoneUrl = pathToFileURL(
+    resolve(projectRoot, "services/pdf/render-zone.js"),
+  );
+  const exporterUrl = pathToFileURL(
+    resolve(projectRoot, "services/pdf/exporter.js"),
+  );
+  const { createPdfRenderZone } = await import(renderZoneUrl.href);
+  const { createPdfOptions, exportSeminarPdf } = await import(
+    exporterUrl.href
   );
   const documentRef = createFakeDocument();
   const renderContent = (target) => {
@@ -70,4 +83,33 @@ test("PDF service creates the real horizontal structure and always cleans up", a
   });
   assert.equal(fallbackCalled, true);
   assert.equal(documentRef.body.children.length, 0);
+
+  let releaseFallback;
+  let markFallbackStarted;
+  const fallbackStarted = new Promise((resolveStarted) => {
+    markFallbackStarted = resolveStarted;
+  });
+  const pendingFallback = exportSeminarPdf({
+    documentRef,
+    topicData: { id: "sample", title: "샘플 세미나" },
+    mode: "vertical",
+    renderContent: () => {},
+    html2pdf: undefined,
+    onFallback: () => {
+      markFallbackStarted();
+      return new Promise((resolveFallback) => {
+        releaseFallback = resolveFallback;
+      });
+    },
+    waitForLayout: async () => {},
+  });
+  await fallbackStarted;
+  assert.equal(documentRef.body.children.length, 1);
+  releaseFallback();
+  await pendingFallback;
+  assert.equal(documentRef.body.children.length, 0);
+
+  const options = createPdfOptions({ title: "샘플 세미나" }, "horizontal");
+  assert.equal(options.filename, "샘플_세미나_발표슬라이드.pdf");
+  assert.equal(options.jsPDF.orientation, "landscape");
 });

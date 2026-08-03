@@ -2,7 +2,7 @@ import { renderReadingDocument } from "../../components/presentation/document-re
 import { renderSeminarList } from "../../components/seminar-list.js";
 import { renderPresentationSlides } from "../../components/presentation/slide-renderer.js";
 import { seminarList, seminarsDatabase } from "../../data/seminars.js";
-import { exportSeminarPdf } from "../../services/pdf-exporter.js";
+import { exportSeminarPdf } from "../../services/pdf/exporter.js";
 
 export const createPresentationPath = (mode, topicId) =>
   `../presentation/${mode}.html?topic=${encodeURIComponent(topicId)}`;

@@ -21,6 +21,7 @@ test("legacy structure and references are fully removed", () => {
     "components/slide-controller.js",
     "components/slide-header.js",
     "components/slide-renderer.js",
+    "services/pdf-exporter.js",
     "styles/style.css",
     "styles/level1-main",
     "styles/level2-navigation",
