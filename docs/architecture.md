@@ -4,7 +4,7 @@
 
 ## 1. 목적
 
-이 프로젝트의 프런트엔드는 별도의 빌드 결과물 없이 Vercel에 배포할 수 있는 순수 정적 사이트를 유지한다. `index.html`을 제외한 모든 화면은 `pages/` 아래에서 명시적인 페이지 패키지를 가지며, 실제 구현은 재사용 가능한 컴포넌트를 중심으로 구성한다. 로컬 개발과 검증은 Docker 안의 Node.js 24와 Vercel CLI로 통일하고, 서버 기능은 루트 `api/`의 Vercel Functions로 확장한다.
+이 프로젝트의 프런트엔드는 별도의 빌드 결과물 없이 Vercel에 배포할 수 있는 순수 정적 사이트를 유지한다. `index.html`을 제외한 모든 화면은 `pages/` 아래에서 명시적인 페이지 패키지를 가지며, 실제 구현은 재사용 가능한 컴포넌트를 중심으로 구성한다. 로컬 개발과 검증은 `fnm`으로 선택한 Node.js 24와 프로젝트 로컬 Vercel CLI로 통일하고, 서버 기능은 루트 `api/`의 Vercel Functions로 확장한다.
 
 구조가 확장되더라도 다음 질문에 빠르게 답할 수 있어야 한다.
 
@@ -26,10 +26,11 @@
 
 ### 2.2 개발 환경과 배포 환경 분리
 
-- 로컬 개발 환경은 `Dockerfile.dev`와 `compose.yaml`로 재현한다.
-- 컨테이너의 Node.js major version은 Vercel과 동일한 `24.x`로 고정한다.
+- 로컬 Node.js는 Homebrew나 시스템 고정 설치 대신 `fnm`으로 관리한다.
+- 프로젝트 루트의 `.node-version`과 `package.json#engines.node`를 `24.x`로 맞춘다.
+- Vercel CLI는 전역 설치하지 않고 프로젝트 `devDependencies`에 고정한다.
 - 로컬 정적 페이지와 Vercel Functions 통합 실행에는 `vercel dev`를 사용한다.
-- Docker는 개발과 검증에만 사용하며 `Dockerfile.vercel` 또는 컨테이너 기반 운영 배포를 도입하지 않는다.
+- Docker와 `Dockerfile.vercel`은 현재 개발 및 운영 흐름에 도입하지 않는다.
 - 운영과 Preview 배포는 Git 저장소를 연결한 Vercel의 기본 배포 흐름을 유지한다.
 - 프런트엔드 번들링이 실제 요구사항이 되기 전에는 Vite와 별도 `dist/` 빌드 단계를 추가하지 않는다.
 
@@ -82,9 +83,7 @@ portfolio/
 ├── index.html
 ├── AGENTS.md
 ├── README.md
-├── Dockerfile.dev
-├── compose.yaml
-├── .dockerignore
+├── .node-version
 ├── .gitignore
 ├── package.json
 ├── package-lock.json
@@ -232,7 +231,8 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - PDF 실패 시 임시 DOM을 항상 제거한다.
 - 다운로드 버튼에 주제와 형식을 포함한 접근성 이름을 제공한다.
 - HTML에서 그대로 노출되는 Markdown 강조 문법을 시맨틱 HTML로 교체한다.
-- 개발 전용 Docker 환경에 Node.js 24와 Vercel CLI를 고정한다.
+- `.node-version`과 `package.json`으로 Node.js 24를 고정하고 README에 Homebrew 없는 `fnm` 설치법을 기록한다.
+- Vercel CLI를 프로젝트 `devDependencies`에 고정한다.
 - `package.json`에 Node.js `24.x`, 로컬 실행과 구조 검증 명령을 선언한다.
 - `/api/health` Vercel Function을 추가해 로컬과 Preview API 동작을 검증한다.
 - 오래된 PowerShell 검증기를 Node.js 표준 라이브러리만 사용하는 `tests/verify-structure.mjs`로 교체한다.
@@ -243,9 +243,8 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 구조 개편은 다음 조건을 모두 만족해야 완료된다.
 
 - 구조 검증 스크립트가 모든 필수 파일과 내부 참조를 확인하고 통과한다.
-- `docker compose config`와 개발 이미지 빌드가 성공한다.
-- 컨테이너 안에서 `node --version`이 `v24`로 시작한다.
-- 컨테이너 안에서 `npm test`가 통과한다.
+- `fnm use` 후 `node --version`이 `v24`로 시작한다.
+- 프로젝트 루트에서 `npm test`가 통과한다.
 - 삭제된 구경로를 참조하는 HTML, JavaScript, CSS가 없다.
 - 홈 콘텐츠 조각 네 개가 정상적으로 로드된다.
 - 세미나 목록이 데이터에서 렌더링된다.

@@ -6,11 +6,13 @@
 
 **Architecture:** 루트 `index.html` 외의 URL 진입점은 `pages/` 아래에 둔다. 페이지 모듈은 데이터 선택과 컴포넌트 조립만 담당하고, 재사용 UI는 `components/`, PDF 내보내기는 `services/`, 정적 홈 콘텐츠는 `content/`가 담당한다. 모든 변경 작업은 현재 문서와 `docs/history/2026.md`를 같은 커밋에서 갱신한다.
 
-**Tech Stack:** HTML5, CSS, JavaScript ES modules, Web Components, Python 3 표준 라이브러리, 브라우저 기반 수동 검증
+**Tech Stack:** HTML5, CSS, JavaScript ES modules, Web Components, Node.js 24, Vercel CLI 58.4.4, 브라우저 기반 수동 검증
 
 ## Global Constraints
 
-- 빌드 도구, JavaScript 패키지 관리자, 프레임워크를 추가하지 않는다.
+- 프런트엔드 번들러와 프레임워크를 추가하지 않는다.
+- Node.js는 `.node-version`과 `package.json#engines.node`에서 `24.x`로 고정하고 `fnm`으로 선택한다.
+- Vercel CLI는 전역 설치하지 않고 프로젝트 `devDependencies`에 정확한 버전으로 고정한다.
 - 루트 `index.html`을 제외한 모든 URL 진입 화면은 `pages/` 아래에 둔다.
 - CSS 의존 순서는 `tokens → base → layouts → components → page.css`를 유지한다.
 - `data/`는 DOM, 컴포넌트, 페이지, 서비스에 의존하지 않는다.
@@ -27,6 +29,11 @@
 
 - `AGENTS.md`: 작업자가 반드시 따라야 할 문서화·구조·검증 규칙
 - `README.md`: 실행 방법, URL, 새 세미나 추가법, 문서 색인
+- `.node-version`: 프로젝트 Node.js major version 24 선언
+- `.gitignore`: `node_modules/`, `.vercel/`, 환경 변수 파일 제외
+- `package.json`: 로컬 실행과 구조 검증 명령 및 Node/Vercel 버전 선언
+- `package-lock.json`: JavaScript 도구 의존성 고정
+- `api/health.mjs`: 로컬과 Preview Vercel Functions smoke endpoint
 - `pages/seminars/index.html`: 세미나 목록 진입 HTML
 - `pages/seminars/page.js`: 세미나 데이터와 목록/PDF 기능 조립
 - `pages/seminars/page.css`: 세미나 페이지의 헤더 배치만 소유
@@ -50,7 +57,7 @@
 - `styles/components/presentation.css`: 프레젠테이션 헤더, 레이아웃, 카드
 - `docs/conventions.md`: 구현 및 문서화 규칙
 - `docs/decisions.md`: 현재 유효한 구조 결정
-- `tests/verify_structure.py`: Python 표준 라이브러리 기반 구조 검증
+- `tests/verify-structure.mjs`: Node.js 표준 라이브러리 기반 구조 검증
 
 ### 수정
 
@@ -79,84 +86,90 @@
 
 ---
 
-### Task 1: Documentation Guardrails
+### Task 1: Node/Vercel Foundation and Documentation Guardrails
 
 **Files:**
 - Create: `AGENTS.md`
 - Replace: `README.md`
+- Preserve: `.node-version`
+- Create: `.gitignore`
+- Create: `package.json`
+- Create: `package-lock.json`
+- Create: `api/health.mjs`
 - Create: `docs/conventions.md`
 - Create: `docs/decisions.md`
 - Modify: `docs/status.md`
 - Modify: `docs/history/2026.md`
-- Test: `tests/verify_structure.py`
+- Test: `tests/verify-structure.mjs`
 
 **Interfaces:**
 - Consumes: 문서화 필수 원칙과 목표 구조가 정의된 `docs/architecture.md`
-- Produces: 모든 후속 작업이 따를 루트 규칙, 현재 규칙, 현재 결정, 문서 색인
+- Produces: Node.js 24와 프로젝트 로컬 Vercel CLI 환경, `/api/health`, 모든 후속 작업이 따를 문서 규칙
 
 - [ ] **Step 1: Write the documentation structure test**
 
-`tests/verify_structure.py`를 만들고 다음 검사를 구현한다.
+`tests/verify-structure.mjs`를 만들고 다음 검사를 구현한다.
 
-```python
-from pathlib import Path
-import sys
+```js
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-ROOT = Path(__file__).resolve().parents[1]
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const requiredFiles = [
+  ".node-version",
+  "AGENTS.md",
+  "README.md",
+  "package.json",
+  "api/health.mjs",
+  "docs/architecture.md",
+  "docs/conventions.md",
+  "docs/decisions.md",
+  "docs/status.md",
+  "docs/history/2026.md",
+];
+const errors = requiredFiles
+  .filter((path) => !existsSync(resolve(root, path)))
+  .map((path) => `Missing required file: ${path}`);
 
+if (existsSync(resolve(root, "AGENTS.md"))) {
+  const rules = readFileSync(resolve(root, "AGENTS.md"), "utf8");
+  for (const snippet of [
+    "문서화가 끝나지 않은 작업은 완료로 간주하지 않는다",
+    "docs/history/<year>.md",
+    "docs/status.md",
+  ]) {
+    if (!rules.includes(snippet)) errors.push(`AGENTS.md: ${snippet}`);
+  }
+}
 
-def require_files(paths: list[str]) -> list[str]:
-    return [path for path in paths if not (ROOT / path).is_file()]
+if (errors.length > 0) {
+  console.error(errors.join("\n"));
+  process.exit(1);
+}
 
-
-def require_text(path: str, snippets: list[str]) -> list[str]:
-    content = (ROOT / path).read_text(encoding="utf-8")
-    return [f"{path}: {snippet}" for snippet in snippets if snippet not in content]
-
-
-errors = []
-errors.extend(
-    f"Missing required file: {path}"
-    for path in require_files(
-        [
-            "AGENTS.md",
-            "README.md",
-            "docs/architecture.md",
-            "docs/conventions.md",
-            "docs/decisions.md",
-            "docs/status.md",
-            "docs/history/2026.md",
-        ]
-    )
-)
-
-if (ROOT / "AGENTS.md").is_file():
-    errors.extend(
-        f"Missing required text: {item}"
-        for item in require_text(
-            "AGENTS.md",
-            [
-                "문서화가 끝나지 않은 작업은 완료로 간주하지 않는다",
-                "docs/history/<year>.md",
-                "docs/status.md",
-            ],
-        )
-    )
-
-if errors:
-    print("\n".join(errors), file=sys.stderr)
-    raise SystemExit(1)
-
-print("Structure verification passed.")
+console.log("Structure verification passed.");
 ```
 
 - [ ] **Step 2: Run the test and verify it fails**
 
-Run: `python3 tests/verify_structure.py`
+Run: `fnm exec --using=24 node tests/verify-structure.mjs`
 
 Expected: FAIL because `AGENTS.md`, `docs/conventions.md`, and `docs/decisions.md` do not exist.
 
-- [ ] **Step 3: Write the root rules and current documentation**
+- [ ] **Step 3: Create the Node/Vercel project contract**
+
+사용자가 만든 `.node-version` 값 `24`를 보존한다. `package.json`에 `private: true`, `type: "module"`, `engines.node: "24.x"`, `scripts.dev: "vercel dev --listen 3000"`, `scripts.test: "node tests/verify-structure.mjs"`, `devDependencies.vercel: "58.4.4"`를 선언한다. `npm install`을 실행해 `package-lock.json`을 생성한다. `.gitignore`에는 `node_modules/`, `.vercel/`, `.env`, `.env.*`, `!.env.example`을 기록한다.
+
+`api/health.mjs`는 다음 계약을 구현한다.
+
+```js
+export function GET() {
+  return Response.json({ status: "ok" });
+}
+```
+
+- [ ] **Step 4: Write the root rules and current documentation**
 
 `AGENTS.md`에는 다음 규칙을 명령형으로 작성한다.
 
@@ -178,27 +191,27 @@ Expected: FAIL because `AGENTS.md`, `docs/conventions.md`, and `docs/decisions.m
 
 ## Verification
 
-- 완료를 보고하기 전에 `python3 tests/verify_structure.py`를 실행한다.
+- 완료를 보고하기 전에 `npm test`를 실행한다.
 - 사용자 동작이나 레이아웃을 변경한 경우 로컬 정적 서버에서 관련 화면을 브라우저로 확인한다.
 ```
 
-`docs/conventions.md`에는 페이지 패키지, 컴포넌트 승격, CSS 계층, import 방향, 접근성, 테스트, 문서 갱신 형식을 기록한다. `docs/decisions.md`에는 `D-001 페이지 패키지`, `D-002 공통 CSS 계층`, `D-003 현재 문서와 연도별 이력`, `D-004 Python 구조 검증기`를 상태 `적용`으로 기록한다. `README.md`에는 프로젝트 개요, `python3 -m http.server 4173` 실행법, 현재와 목표 URL, 문서 링크를 작성한다.
+`docs/conventions.md`에는 페이지 패키지, 컴포넌트 승격, CSS 계층, import 방향, 접근성, 테스트, 문서 갱신 형식을 기록한다. `docs/decisions.md`에는 `D-001 페이지 패키지`, `D-002 공통 CSS 계층`, `D-003 현재 문서와 연도별 이력`, `D-004 fnm과 Node.js 구조 검증기`, `D-005 Vercel Functions`를 상태 `적용`으로 기록한다. `README.md`에는 Homebrew 없는 fnm 설치, Node.js 24, 현재 Python 정적 서버, `npm run dev`, `npm test`, 현재와 목표 URL, 문서 링크를 작성한다.
 
-- [ ] **Step 4: Update current status and history**
+- [ ] **Step 5: Update current status and history**
 
 `docs/history/2026.md`의 이번 구조 개편 기록 아래에 `문서 가드레일 적용` 하위 항목을 추가하고 생성한 문서, 검증 명령과 결과를 기록한다. `docs/status.md`의 진행 중 항목을 `문서 가드레일 적용 완료, 공통 기반 이전 대기`로 갱신한다.
 
-- [ ] **Step 5: Run the test and verify it passes**
+- [ ] **Step 6: Run the test and verify it passes**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Expected: `Structure verification passed.`
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add AGENTS.md README.md docs tests/verify_structure.py
-git commit -m "docs: establish project working rules"
+git add .node-version .gitignore AGENTS.md README.md package.json package-lock.json api docs tests/verify-structure.mjs
+git commit -m "chore: establish Node and Vercel foundation"
 ```
 
 ---
@@ -220,7 +233,7 @@ git commit -m "docs: establish project working rules"
 - Modify: `styles/print.css`
 - Modify: `components/section-include.js`
 - Modify: `index.html`
-- Modify: `tests/verify_structure.py`
+- Modify: `tests/verify-structure.mjs`
 - Modify: `docs/status.md`
 - Modify: `docs/history/2026.md`
 
@@ -234,7 +247,7 @@ git commit -m "docs: establish project working rules"
 
 - [ ] **Step 2: Run the test and verify it fails**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Expected: FAIL with missing shared foundation paths.
 
@@ -259,7 +272,7 @@ Expected: FAIL with missing shared foundation paths.
 
 - [ ] **Step 6: Document and verify the task**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Run: `python3 -m http.server 4173`
 
@@ -284,7 +297,7 @@ git commit -m "refactor: establish shared site foundation"
 - Create: `styles/components/seminar-card.css`
 - Modify: `styles/main.css`
 - Modify: `index.html`
-- Modify: `tests/verify_structure.py`
+- Modify: `tests/verify-structure.mjs`
 - Modify: `docs/status.md`
 - Modify: `docs/history/2026.md`
 
@@ -298,7 +311,7 @@ git commit -m "refactor: establish shared site foundation"
 
 - [ ] **Step 2: Run the test and verify it fails**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Expected: FAIL with missing seminar page package.
 
@@ -322,7 +335,7 @@ export function renderSeminarList(container, { seminars, paths, onDownload })
 
 - [ ] **Step 6: Document and verify the task**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 브라우저에서 `/pages/seminars/`를 열어 카드 두 개, 네 개의 구분 가능한 다운로드 버튼 이름, 새 presentation 링크, Markdown 별표 부재, 모바일 너비의 액션 배치를 확인한다. 결과를 `docs/history/2026.md`와 `docs/status.md`에 반영한다.
 
@@ -349,7 +362,7 @@ git commit -m "refactor: create seminar page package"
 - Create: `styles/components/presentation.css`
 - Modify: `styles/main.css`
 - Modify: `styles/print.css`
-- Modify: `tests/verify_structure.py`
+- Modify: `tests/verify-structure.mjs`
 - Modify: `docs/status.md`
 - Modify: `docs/history/2026.md`
 
@@ -363,7 +376,7 @@ git commit -m "refactor: create seminar page package"
 
 - [ ] **Step 2: Run the test and verify it fails**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Expected: FAIL with missing presentation package and reactive header contract.
 
@@ -385,7 +398,7 @@ Expected: FAIL with missing presentation package and reactive header contract.
 
 - [ ] **Step 7: Document and verify the task**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 브라우저에서 두 topic의 horizontal/vertical URL을 확인한다. 제목, 배지, 실제 topic을 유지하는 모드 전환 링크, horizontal의 `1 / 5`, vertical의 navigation button 부재, 화살표와 Space 이동을 검증한다. 결과를 현재 문서와 이력에 기록한다.
 
@@ -405,7 +418,7 @@ git commit -m "refactor: create presentation page package"
 - Modify: `pages/seminars/page.js`
 - Modify: `components/seminar-list.js`
 - Modify: `pages/seminars/index.html`
-- Modify: `tests/verify_structure.py`
+- Modify: `tests/verify-structure.mjs`
 - Modify: `docs/status.md`
 - Modify: `docs/history/2026.md`
 
@@ -419,7 +432,7 @@ git commit -m "refactor: create presentation page package"
 
 - [ ] **Step 2: Run the test and verify it fails**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Expected: FAIL because the PDF service does not exist.
 
@@ -455,7 +468,7 @@ export async function exportSeminarPdf({
 
 - [ ] **Step 6: Document and verify the task**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 브라우저 DOM 검사로 horizontal render zone 안에 `.slide-container.horizontal`과 다섯 카드가 있는지 확인한다. exporter를 의도적으로 throw하는 테스트 호출 후 `#pdf-temp-render-zone`이 0개인지 확인한다. fallback URL이 올바른 topic과 mode를 유지하는지 확인하고 결과를 문서화한다.
 
@@ -472,7 +485,7 @@ git commit -m "fix: isolate reliable PDF export"
 
 **Files:**
 - Delete: legacy files and directories listed in Target File Map
-- Modify: `tests/verify_structure.py`
+- Modify: `tests/verify-structure.mjs`
 - Modify: `docs/architecture.md`
 - Modify: `docs/conventions.md`
 - Modify: `docs/decisions.md`
@@ -489,8 +502,8 @@ git commit -m "fix: isolate reliable PDF export"
 
 다음 경로가 존재하면 실패하도록 검사한다.
 
-```python
-FORBIDDEN_PATHS = [
+```js
+const forbiddenPaths = [
     "seminar.html",
     "sections",
     "slides",
@@ -504,14 +517,14 @@ FORBIDDEN_PATHS = [
     "styles/level4-presentation",
     "tests/verify-structure.ps1",
     "log",
-]
+];
 ```
 
-모든 `.html`, `.css`, `.js`, `.md`, `.py` 파일에서 삭제 대상 경로 참조를 검색하되 `docs/history/2026.md`에 기록된 과거 경로는 예외로 한다.
+모든 `.html`, `.css`, `.js`, `.mjs`, `.md` 파일에서 삭제 대상 경로 참조를 검색하되 `docs/history/2026.md`에 기록된 과거 경로는 예외로 한다.
 
 - [ ] **Step 2: Run the test and verify it fails**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Expected: FAIL listing the legacy paths that still exist.
 
@@ -525,7 +538,7 @@ Expected: FAIL listing the legacy paths that still exist.
 
 - [ ] **Step 5: Run complete automated verification**
 
-Run: `python3 tests/verify_structure.py`
+Run: `npm test`
 
 Run: `git diff --check`
 
@@ -533,7 +546,7 @@ Expected: both commands exit 0; structure test prints `Structure verification pa
 
 - [ ] **Step 6: Run complete browser verification**
 
-Run: `python3 -m http.server 4173`
+Run: `npm run dev`
 
 다음을 데스크톱과 모바일 너비에서 확인한다.
 
@@ -545,6 +558,8 @@ Run: `python3 -m http.server 4173`
 - `/pages/presentation/vertical.html?topic=web-intro`
 
 각 화면의 콘솔 오류, 내부 링크, 제목, 헤더, 모드 전환, 슬라이드 이동, PDF fallback을 검사한다.
+
+`/api/health`가 HTTP 200과 JSON `{ "status": "ok" }`를 반환하는지 확인한다. Vercel CLI가 계정 또는 프로젝트 연결을 요구하면 외부 프로젝트를 새로 만들지 말고 사용자에게 `vercel login`과 `vercel link` 수행을 요청한 뒤 검증을 재개한다.
 
 - [ ] **Step 7: Finalize history and remove the transient plan**
 
@@ -561,8 +576,9 @@ git commit -m "refactor: complete page package migration"
 
 ## Final Success Criteria
 
-- `python3 tests/verify_structure.py`가 통과한다.
+- `npm test`가 통과한다.
 - `git diff --check`가 통과한다.
+- `npm run dev`에서 정적 페이지와 `/api/health`가 함께 동작한다.
 - 루트 `index.html` 외의 사용자 화면이 모두 `pages/` 아래에 있다.
 - 페이지 초기화, 공용 컴포넌트, PDF 서비스, 콘텐츠 데이터의 책임이 분리되어 있다.
 - 모든 화면이 `styles/main.css`와 최소한의 `page.css`를 사용한다.
