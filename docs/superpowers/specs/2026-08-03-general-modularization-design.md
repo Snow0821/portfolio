@@ -181,7 +181,7 @@ component → HTML utility
 - `docs/history/YYYY.md`: 완료된 작업, 문제 해결과 검증 근거
 - 모듈 README: 해당 모듈의 보편적인 공개 계약
 
-구현 완료 후 이 설계 문서와 기존 `2026-08-03-project-modularization-and-seminar-handoff-design.md`의 보편적인 내용은 정규 문서에 흡수한다. 세미나 작성 시스템의 확정 목표와 열린 결정은 `docs/status.md`에 남긴다. 두 임시 사양과 비어 있는 `docs/superpowers/` 하위 디렉터리는 제거하고 README의 임시 핸드오프 링크도 삭제한다.
+구현 완료 후 이 설계 문서, 기존 `2026-08-03-project-modularization-and-seminar-handoff-design.md`와 이 설계에서 파생된 구현 계획의 보편적인 내용은 정규 문서에 흡수한다. 세미나 작성 시스템의 확정 목표와 열린 결정은 `docs/status.md`에 남긴다. 완료된 임시 사양·계획과 비어 있는 `docs/superpowers/` 하위 디렉터리는 제거하고 README의 임시 핸드오프 링크도 삭제한다.
 
 향후에도 설계 사양은 작업 중 사용할 수 있지만 완료 조건에 다음을 포함한다.
 

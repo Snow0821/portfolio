@@ -150,6 +150,7 @@ portfolio/
 │   ├── decisions.md
 │   ├── status.md
 │   ├── superpowers/
+│   │   ├── plans/          # 작업 중인 임시 구현 계획
 │   │   └── specs/          # 작업 중인 임시 설계 사양
 │   └── history/
 │       └── 2026.md
