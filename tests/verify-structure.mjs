@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -400,3 +400,97 @@ test("seminar print fallback URL preserves mode and topic", async () => {
     "../presentation/horizontal.html?topic=web-intro&print=true",
   );
 });
+
+test("legacy structure and references are fully removed", () => {
+  const forbiddenPaths = [
+    "seminar.html",
+    "sections",
+    "slides",
+    "components/level3-seminar-page",
+    "components/level4-presentation",
+    "components/slide-controller.js",
+    "styles/style.css",
+    "styles/level1-main",
+    "styles/level2-navigation",
+    "styles/level3-seminar-page",
+    "styles/level4-presentation",
+    "styles/components/intro.css",
+    "styles/components/section.css",
+    "tests/verify-structure.ps1",
+    "log",
+    "docs/plan.md",
+  ];
+  const existingLegacyPaths = forbiddenPaths.filter((path) =>
+    existsSync(resolve(root, path)),
+  );
+
+  assert.deepEqual(existingLegacyPaths, []);
+
+  const legacyReferencePatterns = [
+    /seminar\.html/,
+    /(?:\.\.\/|\.\/)sections\//,
+    /(?:\.\.\/|\.\/)slides\//,
+    /level[1-4]-(?:main|navigation|seminar-page|presentation)/,
+    /verify-structure\.ps1/,
+    /styles\/style\.css/,
+  ];
+  const sourceFiles = collectFiles(root).filter((path) => {
+    const relativePath = path.slice(root.length + 1);
+    return (
+      /\.(?:html|css|js|mjs|md)$/.test(path) &&
+      relativePath !== "tests/verify-structure.mjs" &&
+      relativePath !== "docs/history/2026.md"
+    );
+  });
+  const staleReferences = sourceFiles.flatMap((path) => {
+    const source = readFileSync(path, "utf8");
+    return legacyReferencePatterns
+      .filter((pattern) => pattern.test(source))
+      .map((pattern) => `${path.slice(root.length + 1)}: ${pattern}`);
+  });
+
+  assert.deepEqual(staleReferences, []);
+});
+
+test("local HTML and CSS references resolve to existing files", () => {
+  const missingReferences = [];
+
+  for (const path of collectFiles(root)) {
+    if (path.endsWith(".html")) {
+      const source = readFileSync(path, "utf8");
+      for (const match of source.matchAll(/(?:href|src)=["']([^"']+)["']/g)) {
+        const reference = match[1];
+        if (/^(?:[a-z]+:|#)/i.test(reference)) continue;
+        if (!referenceExists(path, reference)) {
+          missingReferences.push(`${path.slice(root.length + 1)}: ${reference}`);
+        }
+      }
+    }
+
+    if (path.endsWith(".css")) {
+      const source = readFileSync(path, "utf8");
+      for (const match of source.matchAll(/@import\s+["']([^"']+)["']/g)) {
+        if (!referenceExists(path, match[1])) {
+          missingReferences.push(`${path.slice(root.length + 1)}: ${match[1]}`);
+        }
+      }
+    }
+  }
+
+  assert.deepEqual(missingReferences, []);
+});
+
+function collectFiles(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    if ([".git", "node_modules"].includes(entry.name)) return [];
+    const path = resolve(directory, entry.name);
+    return entry.isDirectory() ? collectFiles(path) : [path];
+  });
+}
+
+function referenceExists(sourcePath, reference) {
+  const cleanReference = reference.split(/[?#]/)[0];
+  const target = resolve(dirname(sourcePath), cleanReference);
+  if (!existsSync(target)) return false;
+  return !statSync(target).isDirectory() || existsSync(resolve(target, "index.html"));
+}

@@ -1,7 +1,5 @@
 # Portfolio Architecture
 
-> 상태: 승인된 목표 구조. 구조 개편 작업이 완료되면 이 문서에서 이 안내를 제거하고 현재 구조의 기준 문서로 사용한다.
-
 ## 1. 목적
 
 이 프로젝트의 프런트엔드는 별도의 빌드 결과물 없이 Vercel에 배포할 수 있는 순수 정적 사이트를 유지한다. `index.html`을 제외한 모든 화면은 `pages/` 아래에서 명시적인 페이지 패키지를 가지며, 실제 구현은 재사용 가능한 컴포넌트를 중심으로 구성한다. 로컬 개발과 검증은 `fnm`으로 선택한 Node.js 24와 프로젝트 로컬 Vercel CLI로 통일하고, 서버 기능은 루트 `api/`의 Vercel Functions로 확장한다.
@@ -76,7 +74,7 @@ tokens → base → layouts → components → page.css
 
 단순한 읽기, 설명 또는 프로젝트 파일을 변경하지 않는 검토는 새 이력을 강제하지 않는다. 다만 검토 결과를 프로젝트 피드백으로 보존해 달라는 요청이 있으면 반드시 기록한다.
 
-## 3. 목표 디렉터리 구조
+## 3. 현재 디렉터리 구조
 
 ```text
 portfolio/
@@ -211,41 +209,39 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - 발표 자료는 `/pages/presentation/horizontal.html?topic=<id>`로 접근한다.
 - 읽기 자료는 `/pages/presentation/vertical.html?topic=<id>`로 접근한다.
 - 로컬과 배포 환경의 API 상태는 `/api/health`로 확인한다.
-- 내부 링크는 모두 새 경로로 갱신한다.
-- 외부에 공개된 기존 URL이 있다는 근거가 없으므로 주제별 리다이렉트 HTML과 루트 `seminar.html`은 유지하지 않는다.
-- 향후 공개 URL 호환 요구가 생기면 리다이렉트 파일을 예외로 추가하고 그 이유를 `docs/decisions.md`에 기록한다.
+- 내부 링크는 현재 페이지 패키지 경로만 사용한다.
+- 이전 공개 URL의 호환 요구가 생기면 리다이렉트 파일을 예외로 추가하고 그 이유를 `docs/decisions.md`에 기록한다.
 
-## 7. 초기 구조 개편 범위
+## 7. 확장 절차
 
-구조 개편 시 다음 작업을 함께 수행한다.
+### 새 세미나 주제
 
-- `level1-*`, `level2-*`, `level3-*`, `level4-*` 디렉터리를 책임 기반 이름으로 대체한다.
-- 세미나와 프레젠테이션 HTML 및 초기화 코드를 페이지 패키지로 이동한다.
-- 홈 섹션 조각을 `content/home/`으로 이동한다.
-- PDF 생성을 `services/pdf-exporter.js`로 분리한다.
-- 사용되지 않는 `components/slide-controller.js`를 제거한다.
-- 데이터와 중복되는 `sections/seminar-list.html`을 제거한다.
-- 주제별 리다이렉트 HTML 네 개를 제거한다.
-- 슬라이드 헤더가 동적으로 설정된 속성을 반영하도록 수정한다.
-- PDF용 가로 슬라이드 DOM을 실제 viewer와 같은 구조로 생성한다.
-- PDF 실패 시 임시 DOM을 항상 제거한다.
-- 다운로드 버튼에 주제와 형식을 포함한 접근성 이름을 제공한다.
-- HTML에서 그대로 노출되는 Markdown 강조 문법을 시맨틱 HTML로 교체한다.
-- `.node-version`과 `package.json`으로 Node.js 24를 고정하고 README에 Homebrew 없는 `fnm` 설치법을 기록한다.
-- Vercel CLI를 프로젝트 `devDependencies`에 고정한다.
-- `package.json`에 Node.js `24.x`, 로컬 실행과 구조 검증 명령을 선언한다.
-- `/api/health` Vercel Function을 추가해 로컬과 Preview API 동작을 검증한다.
-- 오래된 PowerShell 검증기를 Node.js 표준 라이브러리만 사용하는 `tests/verify-structure.mjs`로 교체한다.
-- `README.md`, 현재 문서와 연도별 작업 이력을 함께 갱신한다.
+- `data/topics/<topic-id>.js`에 발표 슬라이드와 읽기 문서 데이터를 추가한다.
+- `data/seminars.js`에서 주제를 import하고 database 및 목록에 등록한다.
+- 별도 HTML을 만들지 않고 공용 presentation 페이지의 `topic` 쿼리로 접근한다.
+- `npm test`와 세미나·가로·세로 화면 브라우저 검증을 수행하고 작업 이력을 기록한다.
 
-## 8. 검증 기준
+### 새 사용자 화면
 
-구조 개편은 다음 조건을 모두 만족해야 완료된다.
+- 홈 이외의 화면은 `pages/<page-name>/` 패키지로 만든다.
+- 공용 UI와 동작을 먼저 `components/`에서 설계하고 페이지 모듈에는 조립만 둔다.
+- 공통 CSS를 우선 확장하고 화면에만 필요한 예외를 `page.css`에 둔다.
+- 새 URL과 책임 경계를 현재 문서 및 작업 이력에 반영한다.
+
+### 새 API
+
+- 독립적인 `api/*.mjs` Vercel Function으로 만든다.
+- 브라우저 전용 컴포넌트에 의존하지 않게 하고 응답 계약을 자동 테스트한다.
+- `npm run dev`에서 로컬 HTTP 계약을 검증한 뒤 Preview 환경에서 다시 확인한다.
+
+## 8. 변경 검증 기준
+
+프로젝트 변경은 관련 항목을 만족해야 완료된다.
 
 - 구조 검증 스크립트가 모든 필수 파일과 내부 참조를 확인하고 통과한다.
 - `fnm use` 후 `node --version`이 `v24`로 시작한다.
 - 프로젝트 루트에서 `npm test`가 통과한다.
-- 삭제된 구경로를 참조하는 HTML, JavaScript, CSS가 없다.
+- 금지된 레거시 경로나 존재하지 않는 내부 파일을 참조하지 않는다.
 - 홈 콘텐츠 조각 네 개가 정상적으로 로드된다.
 - 세미나 목록이 데이터에서 렌더링된다.
 - 모든 PDF 다운로드 버튼에 구분 가능한 접근성 이름이 있다.
@@ -256,7 +252,7 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - PDF 생성 성공과 실패 후 임시 DOM이 남지 않는다.
 - 모바일 너비에서 사이트 헤더, 세미나 카드, 프레젠테이션 헤더가 사용할 수 있는 상태다.
 - `vercel dev` 환경에서 `/api/health`가 HTTP 200과 JSON `status: "ok"`를 반환한다.
-- Vercel Preview 배포 후 정적 페이지와 `/api/health`를 한 번 더 검증한다. Preview 생성에 계정 연결이나 외부 배포 권한이 필요하면 완료 전 사용자 수행 단계로 명시한다.
+- 배포 변경은 Vercel Preview에서 정적 페이지와 `/api/health`를 한 번 더 검증한다. Preview 생성에 계정 연결이나 외부 배포 권한이 필요하면 사용자 수행 단계로 명시한다.
 - 실제 수행한 검증 명령과 결과가 `docs/history/2026.md`에 기록된다.
 
 ## 9. 문서 유지 전략
