@@ -77,7 +77,7 @@ tokens → base → layouts → components → page.css
 ### 2.6 책임 기반 모듈화
 
 - 파일 수가 아니라 하나의 책임, 독립 변경과 독립 검증 가능성을 모듈 경계로 사용한다.
-- 실행 코드, CSS와 테스트는 200줄 이하를 권장하고 300줄을 넘는 파일은 분리하거나 예외 근거를 문서화한다.
+- 실행 코드, CSS와 테스트는 200줄 이하를 기본으로 한다. 201~300줄은 경로와 응집된 책임을 유지해야 하는 이유가 기록된 예외만 허용하고 300줄 초과는 허용하지 않는다.
 - 콘텐츠 데이터, 문서와 이력은 줄 수 기준에서 제외하지만 구조적 복잡성이 커지면 책임에 따라 분리한다.
 - 파일이 세 개 이상이거나 공개 계약, 생명주기 또는 의존 방향이 복잡한 기능은 디렉터리 README로 모듈 사용법을 설명한다.
 - 공개 함수의 작은 계약은 JSDoc으로 설명하고 파일별 설명 문서는 만들지 않는다.
@@ -111,14 +111,22 @@ portfolio/
 ├── components/
 │   ├── section-include.js
 │   ├── site-header.js
-│   ├── slide-header.js
 │   ├── seminar-list.js
-│   ├── document-renderer.js
-│   ├── slide-renderer.js
-│   └── presentation-controller.js
+│   └── presentation/
+│       ├── README.md
+│       ├── controller.js
+│       ├── document-renderer.js
+│       ├── slide-header.js
+│       └── slide-renderer.js
 │
 ├── services/
-│   └── pdf-exporter.js
+│   └── pdf/
+│       ├── README.md
+│       ├── exporter.js
+│       └── render-zone.js
+│
+├── utils/
+│   └── html.js
 │
 ├── data/
 │   ├── seminars.js
@@ -142,21 +150,32 @@ portfolio/
 │       ├── content-section.css
 │       ├── entry.css
 │       ├── seminar-card.css
-│       └── presentation.css
+│       └── presentation/
+│           ├── header.css
+│           ├── layout.css
+│           ├── slide-card.css
+│           └── reading-document.css
 │
 ├── docs/
 │   ├── architecture.md
 │   ├── conventions.md
 │   ├── decisions.md
 │   ├── status.md
-│   ├── superpowers/
-│   │   ├── plans/          # 작업 중인 임시 구현 계획
-│   │   └── specs/          # 작업 중인 임시 설계 사양
 │   └── history/
 │       └── 2026.md
 │
 └── tests/
-    └── verify-structure.mjs
+    ├── README.md
+    ├── foundation.test.mjs
+    ├── home.test.mjs
+    ├── seminars.test.mjs
+    ├── presentation.test.mjs
+    ├── pdf.test.mjs
+    ├── module-policy.test.mjs
+    ├── structure.test.mjs
+    └── helpers/
+        ├── fake-dom.mjs
+        └── files.mjs
 ```
 
 ## 4. 영역별 책임
@@ -191,17 +210,19 @@ Vercel Functions 진입점을 소유한다. 각 `.mjs` 파일은 독립적인 HT
 
 ### `docs/`
 
-현재 구조, 현재 규칙, 현재 상태, 현재 결정과 압축된 변경 이력을 소유한다. 현재 문서에는 과거 설명을 누적하지 않고, 과거 내용은 연도별 이력에 보존한다. 복잡한 미래 시스템의 승인 전 설계와 새 세션 핸드오프는 `docs/superpowers/specs/`에 두며 작업별 로그나 ADR을 대신하지 않는다.
+현재 구조, 현재 규칙, 현재 상태, 현재 결정과 압축된 변경 이력을 소유한다. 현재 문서에는 과거 설명을 누적하지 않고, 과거 내용은 연도별 이력에 보존한다. 작업 중 임시 설계나 계획을 사용할 수 있지만 완료 후에는 보편적인 내용을 현재 문서에 흡수하고 임시 문서를 제거한다.
 
 ## 5. 의존 방향
 
 허용되는 기본 의존 방향은 다음과 같다.
 
 ```text
-page → component → service/data
+page → component → utility/data
+page → PDF exporter → render zone
 page.css → shared styles
 component → component
-service → data 또는 전달받은 DOM 렌더러
+component → utility
+service → 전달받은 데이터 또는 DOM 렌더러
 api → 서버 전용 유틸리티 또는 외부 서비스
 ```
 
@@ -231,7 +252,7 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - `data/seminars.js`에서 주제를 import하고 database 및 목록에 등록한다.
 - 별도 HTML을 만들지 않고 공용 presentation 페이지의 `topic` 쿼리로 접근한다.
 - `npm test`와 세미나·가로·세로 화면 브라우저 검증을 수행하고 작업 이력을 기록한다.
-- 공통 콘텐츠 계약과 에셋 파이프라인을 구현하기 전에는 현재 데이터 형식을 유지한다. 차기 작성 시스템 설계는 `docs/superpowers/specs/2026-08-03-project-modularization-and-seminar-handoff-design.md`에서 시작한다.
+- 공통 콘텐츠 계약과 에셋 파이프라인을 구현하기 전에는 현재 데이터 형식을 유지한다. 차기 작성 시스템의 확정 목표와 열린 결정은 `docs/status.md`를 기준으로 설계한다.
 
 ### 새 사용자 화면
 
@@ -253,6 +274,7 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - 구조 검증 스크립트가 모든 필수 파일과 내부 참조를 확인하고 통과한다.
 - `fnm use` 후 `node --version`이 `v24`로 시작한다.
 - 프로젝트 루트에서 `npm test`가 통과한다.
+- 실행 JavaScript, CSS와 테스트가 파일 길이 정책을 만족하고 모든 로컬 ES module 참조가 존재한다.
 - 금지된 레거시 경로나 존재하지 않는 내부 파일을 참조하지 않는다.
 - 홈 콘텐츠 조각 네 개가 정상적으로 로드된다.
 - 세미나 목록이 데이터에서 렌더링된다.
@@ -272,6 +294,7 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - `architecture.md`, `conventions.md`, `decisions.md`, `status.md`는 현재 유효한 사실만 유지한다.
 - 변경 과정과 대체된 내용은 `history/<year>.md`에 날짜순으로 기록한다.
 - 작업마다 별도 로그 파일이나 ADR 파일을 만들지 않는다.
-- 여러 세션에 걸쳐 설계할 복잡한 시스템은 구현 전 승인 사양을 `docs/superpowers/specs/`에 둘 수 있다.
+- 여러 세션에 걸친 작업은 `status.md`의 현재 목표와 열린 결정을 시작점으로 삼는다.
+- 복잡한 작업의 임시 설계와 구현 계획은 완료 전에 보편적인 내용을 현재 문서에 흡수하고 제거한다.
 - 연도별 이력이 지나치게 커질 때만 분기별 파일로 나누고 `history/<year>.md`를 색인으로 전환한다.
 - 동일한 설명을 여러 현재 문서에 복사하지 않고, 한 문서를 기준으로 링크한다.

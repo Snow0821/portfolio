@@ -9,6 +9,12 @@ import {
   referenceExists,
 } from "./helpers/files.mjs";
 
+test("completed work leaves only canonical project documentation", () => {
+  assert.equal(existsSync(resolve(projectRoot, "docs/superpowers")), false);
+  const readme = readFileSync(resolve(projectRoot, "README.md"), "utf8");
+  assert.doesNotMatch(readme, /superpowers|handoff-design|핸드오프/);
+});
+
 test("legacy structure and references are fully removed", () => {
   const forbiddenPaths = [
     "seminar.html",

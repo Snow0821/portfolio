@@ -105,7 +105,7 @@ npm run dev:vercel
 
 ## 세미나 주제 추가
 
-현재 데이터 형식으로 주제를 추가하는 절차입니다. 공통 콘텐츠 계약, 이미지 에셋과 자동 분량 검증을 포함하는 차기 작성 시스템을 구현할 때는 아래 프로젝트 문서의 세미나 핸드오프를 먼저 검토합니다.
+현재 데이터 형식으로 주제를 추가하는 절차입니다. 공통 콘텐츠 계약, 이미지 에셋과 자동 분량 검증을 포함하는 차기 작성 시스템의 확정 목표와 열린 결정은 `docs/status.md`에서 관리합니다.
 
 1. `data/topics/<topic-id>.js`에 기존 주제와 같은 형태로 발표 슬라이드와 읽기 문서 데이터를 작성합니다.
 2. `data/seminars.js`에서 새 데이터를 import하고 `seminarsDatabase`와 `seminarList`에 등록합니다.
@@ -118,5 +118,4 @@ npm run dev:vercel
 - [구현 규칙](./docs/conventions.md)
 - [현재 결정](./docs/decisions.md)
 - [현재 상태](./docs/status.md)
-- [모듈화 및 세미나 작성 시스템 핸드오프](./docs/superpowers/specs/2026-08-03-project-modularization-and-seminar-handoff-design.md)
 - [2026년 작업 이력](./docs/history/2026.md)
