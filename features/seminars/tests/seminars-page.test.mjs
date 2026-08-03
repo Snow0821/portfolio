@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createDownloadButton } from "../../../tests/helpers/fake-dom.mjs";
+import {
+  createDownloadButton,
+  createFakeDocument,
+} from "../../../tests/helpers/fake-dom.mjs";
 import { createPageDocument, createTopic, withConsoleError } from "./page-helpers.mjs";
 import {
   createPresentationPath,
@@ -18,6 +21,38 @@ test("presentation and print paths encode the requested topic", () => {
     createPrintFallbackUrl("vertical", "web-intro"),
     "../presentation/vertical.html?topic=web-intro&print=true",
   );
+});
+
+test("opens the vertical print fallback before the download click yields", async () => {
+  const documentRef = createPageDocument();
+  const pdfDocument = createFakeDocument();
+  const button = createDownloadButton("sample", "vertical");
+  const opened = [];
+  documentRef.body = pdfDocument.body;
+  documentRef.createElement = pdfDocument.createElement;
+  documentRef.list.querySelectorAll = () => [button];
+
+  initializeSeminarsPage({
+    documentRef,
+    windowRef: {
+      html2pdf: undefined,
+      open: (...args) => opened.push(args),
+      alert: () => {},
+    },
+    getTopics: () => [createTopic()],
+    getTopic: () => createTopic(),
+  });
+
+  const pendingClick = button.click();
+  const openedBeforeYield = structuredClone(opened);
+  await pendingClick;
+
+  assert.deepEqual(openedBeforeYield, [[
+    "../presentation/vertical.html?topic=sample&print=true",
+    "_blank",
+    "noopener,noreferrer",
+  ]]);
+  assert.equal(documentRef.body.children.length, 0);
 });
 
 test("a missing download topic logs its error and restores the legacy alert", async () => {

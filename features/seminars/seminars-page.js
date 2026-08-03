@@ -40,6 +40,12 @@ function createDownloadHandler({ documentRef, windowRef, getTopic }) {
     try {
       const topicData = getTopic(topicId);
       if (!topicData) throw new Error(`Unknown seminar topic: ${topicId}`);
+      if (!windowRef.html2pdf) {
+        windowRef.open(
+          createPrintFallbackUrl(mode, topicId), "_blank", "noopener,noreferrer",
+        );
+        return;
+      }
       const renderContent = mode === "horizontal"
         ? (target, data) => renderPresentationSlides(target, data, { seminarsHref: "../seminars/" })
         : renderReadingDocument;
