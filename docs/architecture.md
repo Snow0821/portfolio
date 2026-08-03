@@ -161,8 +161,6 @@ portfolio/
     ├── README.md
     ├── foundation.test.mjs
     ├── home.test.mjs
-    ├── seminars.test.mjs
-    ├── presentation.test.mjs
     ├── module-policy.test.mjs
     ├── structure.test.mjs
     └── helpers/
