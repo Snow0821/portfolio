@@ -768,6 +768,12 @@ git commit -m "refactor: move seminar orchestration"
 - Modify: `pages/presentation/vertical.html`
 - Modify: `pages/presentation/page.js`
 - Create: `features/seminars/tests/structure.test.mjs`
+- Delete: `tests/seminars.test.mjs`
+- Delete: `tests/presentation.test.mjs`
+- Delete: `tests/pdf.test.mjs`
+- Modify: `tests/structure.test.mjs`
+- Modify: `tests/README.md`
+- Modify: `docs/seminar-domain-plan.md`
 - Modify: `docs/history/2026.md`
 
 **Interfaces:**
@@ -889,10 +895,16 @@ Add the feature stylesheet link to the list and both presentation HTML files. Ke
 
 Expected: page and feature tests PASS. The old modules still exist but have no runtime consumers.
 
+Retire the root seminar page, presentation, and PDF tests after their feature
+equivalents pass. Remove the root presentation-style cascade assertion because
+the feature structure test owns that boundary. Update `tests/README.md` so
+root tests cover global architecture/home/API policy and feature-local tests
+cover seminar contract, data, layouts, UI, pages, PDF lifecycle, and structure.
+
 - [ ] **Step 6: Record results and commit**
 
 ```bash
-git add features/seminars/styles features/seminars/tests/structure.test.mjs styles/main.css styles/print.css pages/seminars pages/presentation docs/history/2026.md
+git add features/seminars/styles features/seminars/tests/structure.test.mjs styles/main.css styles/print.css pages/seminars pages/presentation tests docs/seminar-domain-plan.md docs/history/2026.md
 git commit -m "refactor: load seminar feature pages"
 ```
 
@@ -916,9 +928,6 @@ git commit -m "refactor: load seminar feature pages"
 - Delete: `styles/components/presentation/layout.css`
 - Delete: `styles/components/presentation/reading-document.css`
 - Delete: `styles/components/presentation/slide-card.css`
-- Delete: `tests/seminars.test.mjs`
-- Delete: `tests/presentation.test.mjs`
-- Delete: `tests/pdf.test.mjs`
 - Modify: `tests/module-policy.test.mjs`
 - Modify: `tests/structure.test.mjs`
 - Modify: `features/seminars/tests/structure.test.mjs`

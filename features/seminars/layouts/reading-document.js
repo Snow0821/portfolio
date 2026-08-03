@@ -7,18 +7,20 @@ export function renderReadingDocument(container, topicData) {
     ? topicData.prerequisites.map(escapeHtml).join(", ") : "None";
   const tags = topicData.tags.map(escapeHtml).join(", ");
   const sections = topicData.sections.map((section) => `
-    <section class="reading-section" data-section-role="${escapeAttribute(section.role)}">
+    <section class="reading-section reading-doc-section" data-section-role="${escapeAttribute(section.role)}">
       <h2>${escapeHtml(section.title)}</h2>
-      <div class="reading-blocks">${section.blocks.map((block) => renderContentBlock(block)).join("")}</div>
+      <div class="reading-blocks">${section.blocks.map((block) => renderContentBlock(block, {
+        className: block.type === "summary" ? "callout-box" : "",
+      })).join("")}</div>
     </section>`).join("");
   container.innerHTML = `
-    <article class="reading-document">
-      <header class="reading-document__header">
-        <p>${escapeHtml(topicData.format)}</p><h1>${escapeHtml(topicData.title)}</h1>
-        <p>${escapeHtml(topicData.subtitle)}</p><p>${tags}</p>
+    <article class="reading-document reading-doc-container">
+      <header class="reading-document__header reading-doc-header">
+        <p class="reading-doc-category">${escapeHtml(topicData.format)}</p><h1 class="reading-doc-title">${escapeHtml(topicData.title)}</h1>
+        <p class="reading-doc-lead">${escapeHtml(topicData.subtitle)}</p><p>${tags}</p>
         <p>${escapeHtml(topicData.summary)}</p><p>${escapeHtml(topicData.author)} · ${escapeHtml(topicData.updated)}</p>
       </header>
-      <section class="reading-document__metadata">
+      <section class="reading-document__metadata reading-doc-section">
         <h2>Audience</h2><p>${escapeHtml(topicData.audience)}</p>
         <h2>Prerequisites</h2><p>${prerequisites}</p>
         <h2>Outcomes</h2><ul>${topicData.outcomes.map((outcome) => `<li>${escapeHtml(outcome)}</li>`).join("")}</ul>

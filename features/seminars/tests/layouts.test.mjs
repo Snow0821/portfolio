@@ -26,6 +26,9 @@ function createContainer() {
 
 test("renders all semantic sections and source details for reading", () => {
   const topic = createTopic();
+  topic.sections[0].blocks.push({
+    id: "sample-summary", type: "summary", items: ["Key point"],
+  });
   const container = createContainer();
   renderReadingDocument(container, topic);
   for (const role of ["problem", "prior-art", "method", "cases", "conclusion"]) {
@@ -34,10 +37,14 @@ test("renders all semantic sections and source details for reading", () => {
   assert.match(container.innerHTML, /shared key point &lt;safe&gt;/);
   assert.match(container.innerHTML, /reading-only detail/);
   assert.match(container.innerHTML, /Sample subtitle/);
+  assert.match(container.innerHTML, /class="reading-document reading-doc-container"/);
+  assert.match(container.innerHTML, /class="reading-document__header reading-doc-header"/);
+  assert.match(container.innerHTML, /class="reading-section reading-doc-section"/);
   assert.match(container.innerHTML, /sample/);
   assert.match(container.innerHTML, /<pre><code class="language-js">a &lt; b/);
   assert.match(container.innerHTML, /src="\/image\.webp" alt="Diagram &lt;alt&gt;"/);
   assert.match(container.innerHTML, /content-block--credit/);
+  assert.match(container.innerHTML, /content-block--summary callout-box/);
 });
 
 test("projects only referenced summaries into bounded presentation slides", () => {
@@ -46,6 +53,9 @@ test("projects only referenced summaries into bounded presentation slides", () =
   renderPresentationSlides(container, topic, { seminarsHref: "../seminars/?q=<&" });
   assert.match(container.innerHTML, /shared key point &lt;safe&gt;/);
   assert.match(container.innerHTML, /Sample subtitle/);
+  assert.match(container.innerHTML, /class="slide-content-inner"/);
+  assert.match(container.innerHTML, /class="slide-card-header"/);
+  assert.match(container.innerHTML, /class="slide-card-body"/);
   assert.doesNotMatch(container.innerHTML, /reading-only detail/);
   assert.doesNotMatch(container.innerHTML, /sample-code|Image caption/);
   const agenda = container.innerHTML.match(/data-layout-id="agenda"[\s\S]*?<\/section>/)?.[0] ?? "";
