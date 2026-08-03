@@ -31,7 +31,7 @@ export function initializePresentationPage({
 }
 
 function resolveState({ mode, topicId, shouldPrint, getTopic }) {
-  const normalizedMode = mode === "horizontal" ? "horizontal" : "vertical";
+  const normalizedMode = mode === "vertical" ? "vertical" : "horizontal";
   const resolvedTopicId = topicId ?? "python-intro";
   const topicData = getTopic(resolvedTopicId);
   if (!topicData) throw new Error(`Unknown seminar topic: ${resolvedTopicId}`);
@@ -48,7 +48,7 @@ function configurePage(documentRef, state) {
     "badge-class": horizontal ? "" : "doc-badge",
     "back-href": "../seminars/",
     "alt-href": `./${horizontal ? "vertical" : "horizontal"}.html?topic=${encodeURIComponent(state.topicId)}`,
-    "alt-text": horizontal ? "읽기용 문서 보기" : "발표용 슬라이드 보기",
+    "alt-text": horizontal ? "읽기용 문서 ↗" : "발표용 슬라이드 ↗",
     "is-presentation": String(horizontal),
   };
   for (const [name, value] of Object.entries(attributes)) {
@@ -80,7 +80,7 @@ function inspectRenderedLayout(inspectLayout, container, documentRef, windowRef)
         return;
       }
       container.dataset.layoutStatus = "error";
-      console.error(`프레젠테이션 overflow: ${issues.map(({ id }) => id).join(", ")}`);
+      console.error(`세미나 레이아웃 overflow: ${issues.map(({ id }) => id).join(", ")}`);
     }, (error) => {
       container.dataset.layoutStatus = "error";
       console.error(error);

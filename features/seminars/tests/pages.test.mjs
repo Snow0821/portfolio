@@ -26,16 +26,22 @@ test("presentation initializer renders a vertical topic and defaults an omitted 
     ok: true, mode: "vertical", topicData: topic, topicId: "python-intro", shouldPrint: false,
   });
   assert.match(documentRef.container.innerHTML, /reading-document/);
+  assert.equal(documentRef.header.getAttribute("alt-text"), "발표용 슬라이드 ↗");
 });
 
 test("presentation initializer rejects an explicit unknown topic with generic error markup", async () => {
   await withConsoleError(async () => {
     const documentRef = createPageDocument();
+    const requestedIds = [];
     const result = initializePresentationPage({
       documentRef, windowRef: {}, mode: "horizontal", topicId: "missing",
-      getTopic: () => null,
+      getTopic: (id) => {
+        requestedIds.push(id);
+        return id === "python-intro" ? createTopic("python-intro") : null;
+      },
     });
     assert.equal(result.ok, false);
+    assert.deepEqual(requestedIds, ["missing"]);
     assert.match(documentRef.container.innerHTML, /role="alert"/);
   });
 });
@@ -69,6 +75,19 @@ test("horizontal presentation constructs its controller and schedules one print"
   assert.equal(prints, 1);
 });
 
+test("invalid or omitted presentation mode preserves horizontal behavior", () => {
+  for (const mode of [undefined, "diagonal"]) {
+    const documentRef = createPageDocument();
+    const result = initializePresentationPage({
+      documentRef, windowRef: {}, mode, topicId: "sample", getTopic: () => createTopic(),
+      inspectLayout: async () => [],
+    });
+    assert.equal(result.mode, "horizontal");
+    assert.equal(documentRef.header.getAttribute("alt-href"), "./vertical.html?topic=sample");
+    assert.equal(documentRef.header.getAttribute("alt-text"), "읽기용 문서 ↗");
+  }
+});
+
 test("layout inspection records overflow, empty, and rejected outcomes", async () => {
   await withConsoleError(async (errors) => {
     const overflowDocument = createPageDocument();
@@ -78,7 +97,7 @@ test("layout inspection records overflow, empty, and rejected outcomes", async (
     });
     await Promise.resolve();
     assert.equal(overflowDocument.container.dataset.layoutStatus, "error");
-    assert.match(errors[0].join(" "), /cover, agenda/);
+    assert.deepEqual(errors[0], ["세미나 레이아웃 overflow: cover, agenda"]);
 
     const clearDocument = createPageDocument();
     initializePresentationPage({

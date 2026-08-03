@@ -61,7 +61,13 @@ test("PDF feature service creates horizontal cards and always cleans up", async 
   await pendingFallback;
   assert.equal(documentRef.body.children.length, 0);
 
-  const options = createPdfOptions(topicData, "horizontal");
-  assert.equal(options.filename, "샘플_주제_발표_슬라이드.pdf");
-  assert.equal(options.jsPDF.orientation, "landscape");
+  const horizontal = createPdfOptions({ title: "Web-intro: 101" }, "horizontal");
+  assert.equal(horizontal.filename, "Web-intro_101_발표슬라이드.pdf");
+  assert.equal(horizontal.jsPDF.orientation, "landscape");
+  assert.deepEqual(horizontal.margin, [0, 0, 0, 0]);
+
+  const vertical = createPdfOptions({ title: "Web-intro: 101" }, "vertical");
+  assert.equal(vertical.filename, "Web-intro_101_읽기용문서.pdf");
+  assert.equal(vertical.jsPDF.orientation, "portrait");
+  assert.deepEqual(vertical.margin, [12, 10, 12, 10]);
 });

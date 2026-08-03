@@ -52,7 +52,7 @@ function createDownloadHandler({ documentRef, windowRef, getTopic }) {
     } catch (error) {
       console.error("PDF 다운로드 중 오류가 발생했습니다.", error);
       windowRef.alert(
-        "PDF 생성 중 오류가 발생했습니다. 자료를 연 브라우저에서 인쇄 기능을 이용해 주세요.",
+        "PDF 생성 중 오류가 발생했습니다. 자료를 연 뒤 브라우저의 인쇄 기능을 이용해 주세요.",
       );
     }
   };
