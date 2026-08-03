@@ -1,5 +1,17 @@
 # Tests
 
+## Seminar feature contract
+
+The package test command runs repository tests and feature-local seminar tests:
+
+```bash
+npm.cmd test
+```
+
+Run the contract alone with
+`node --test features/seminars/tests/contract.test.mjs`. Feature-local fixtures
+belong in `features/seminars/tests/` and are not production topic data.
+
 ## Purpose
 
 Node.js 표준 테스트 러너로 프로젝트 구조와 사용자에게 보이는 핵심 동작을 검증한다.

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev:vercel": "vercel dev --listen 3000",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs features/seminars/tests/*.test.mjs"
   },
   "devDependencies": {
     "vercel": "58.4.4"

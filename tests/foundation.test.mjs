@@ -40,7 +40,10 @@ test("project and package metadata agree on Node.js 24", () => {
 
   assert.equal(version, "24");
   assert.equal(packageJson.engines.node, "24.x");
-  assert.equal(packageJson.scripts.test, "node --test tests/*.test.mjs");
+  assert.equal(
+    packageJson.scripts.test,
+    "node --test tests/*.test.mjs features/seminars/tests/*.test.mjs",
+  );
 });
 
 test("Vercel CLI is not invoked from the reserved package dev script", () => {
