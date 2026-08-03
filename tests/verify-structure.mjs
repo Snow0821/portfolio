@@ -89,3 +89,77 @@ test("site header markup identifies only the current destination", async () => {
     /href="\/pages\/seminars\/" aria-current="page"/,
   );
 });
+
+test("seminar page package and accessible list component are available", async () => {
+  const requiredFiles = [
+    "pages/seminars/index.html",
+    "pages/seminars/page.js",
+    "pages/seminars/page.css",
+    "components/seminar-list.js",
+    "styles/components/seminar-card.css",
+  ];
+  const missingFiles = requiredFiles.filter(
+    (path) => !existsSync(resolve(root, path)),
+  );
+
+  assert.deepEqual(missingFiles, []);
+
+  const componentUrl = pathToFileURL(
+    resolve(root, "components/seminar-list.js"),
+  );
+  const { renderSeminarList } = await import(componentUrl.href);
+  const callbacks = [];
+  const buttons = [
+    createDownloadButton("sample", "vertical"),
+    createDownloadButton("sample", "horizontal"),
+  ];
+  const container = {
+    innerHTML: "",
+    querySelectorAll: () => buttons,
+  };
+
+  renderSeminarList(container, {
+    seminars: [
+      {
+        id: "sample",
+        title: "샘플 세미나",
+        subtitle: "Sample Seminar",
+        summary: "컴포넌트 계약 검증용 데이터",
+        tags: ["Sample"],
+      },
+    ],
+    paths: {
+      vertical: (topicId) => `/read?topic=${topicId}`,
+      horizontal: (topicId) => `/slides?topic=${topicId}`,
+    },
+    onDownload: (payload) => callbacks.push(payload),
+  });
+
+  assert.match(container.innerHTML, /href="\/read\?topic=sample"/);
+  assert.match(container.innerHTML, /href="\/slides\?topic=sample"/);
+  assert.match(
+    container.innerHTML,
+    /aria-label="샘플 세미나 읽기용 문서 PDF 다운로드"/,
+  );
+  assert.match(
+    container.innerHTML,
+    /aria-label="샘플 세미나 발표용 슬라이드 PDF 다운로드"/,
+  );
+
+  await buttons[0].click();
+  assert.equal(callbacks.length, 1);
+  assert.equal(callbacks[0].topicId, "sample");
+  assert.equal(callbacks[0].mode, "vertical");
+});
+
+function createDownloadButton(topicId, mode) {
+  let clickHandler;
+
+  return {
+    dataset: { topicId, mode },
+    addEventListener: (eventName, handler) => {
+      if (eventName === "click") clickHandler = handler;
+    },
+    click: () => clickHandler({ preventDefault() {} }),
+  };
+}
