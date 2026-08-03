@@ -28,6 +28,11 @@ Legacy top-level seminar data, presentation components, PDF services, and
 seminar styles are intentionally absent; add future seminar behavior under
 this feature rather than restoring a top-level owner.
 
+Seminar-list PDF controls are native `print=true` anchors with distinct
+accessible button names. They retain browser navigation when `html2pdf` is
+unavailable; the list intercepts the click for loading state and direct export
+only when its synchronous availability predicate succeeds.
+
 ## Validation lifecycle
 
 Registry accessors validate a topic when a consumer requests it, not while an

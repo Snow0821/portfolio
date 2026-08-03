@@ -24,7 +24,10 @@ export function initializeSeminarsPage({
       paths: {
         vertical: (topicId) => createPresentationPath("vertical", topicId),
         horizontal: (topicId) => createPresentationPath("horizontal", topicId),
+        verticalPrint: (topicId) => createPrintFallbackUrl("vertical", topicId),
+        horizontalPrint: (topicId) => createPrintFallbackUrl("horizontal", topicId),
       },
+      canDownloadDirectly: () => Boolean(windowRef.html2pdf),
       onDownload: createDownloadHandler({ documentRef, windowRef, getTopic }),
     });
     return { ok: true };
@@ -40,20 +43,11 @@ function createDownloadHandler({ documentRef, windowRef, getTopic }) {
     try {
       const topicData = getTopic(topicId);
       if (!topicData) throw new Error(`Unknown seminar topic: ${topicId}`);
-      if (!windowRef.html2pdf) {
-        windowRef.open(
-          createPrintFallbackUrl(mode, topicId), "_blank", "noopener,noreferrer",
-        );
-        return;
-      }
       const renderContent = mode === "horizontal"
         ? (target, data) => renderPresentationSlides(target, data, { seminarsHref: "../seminars/" })
         : renderReadingDocument;
       await exportSeminarPdf({
         topicData, mode, renderContent, html2pdf: windowRef.html2pdf, documentRef,
-        onFallback: () => windowRef.open(
-          createPrintFallbackUrl(mode, topicId), "_blank", "noopener,noreferrer",
-        ),
       });
     } catch (error) {
       console.error("PDF 다운로드 중 오류가 발생했습니다.", error);

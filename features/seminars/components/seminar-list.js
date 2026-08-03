@@ -24,17 +24,17 @@ function renderSeminarCard(item, paths) {
           <a href="${escapeAttribute(paths.vertical(item.id))}" target="_blank" rel="noopener noreferrer" class="btn-slide primary">
             읽기용 문서 (세로) ↗
           </a>
-          <button type="button" class="btn-icon-download" data-topic-id="${topicId}" data-mode="vertical" aria-label="${accessibleTitle} 읽기용 문서 PDF 다운로드">
+          <a href="${escapeAttribute(paths.verticalPrint(item.id))}" target="_blank" rel="noopener noreferrer" role="button" class="btn-icon-download" data-topic-id="${topicId}" data-mode="vertical" aria-label="${accessibleTitle} 읽기용 문서 PDF 다운로드">
             <span class="icon" aria-hidden="true">📥</span>
-          </button>
+          </a>
         </div>
         <div class="action-pair">
           <a href="${escapeAttribute(paths.horizontal(item.id))}" target="_blank" rel="noopener noreferrer" class="btn-slide">
             발표용 슬라이드 (가로) ↗
           </a>
-          <button type="button" class="btn-icon-download" data-topic-id="${topicId}" data-mode="horizontal" aria-label="${accessibleTitle} 발표용 슬라이드 PDF 다운로드">
+          <a href="${escapeAttribute(paths.horizontalPrint(item.id))}" target="_blank" rel="noopener noreferrer" role="button" class="btn-icon-download" data-topic-id="${topicId}" data-mode="horizontal" aria-label="${accessibleTitle} 발표용 슬라이드 PDF 다운로드">
             <span class="icon" aria-hidden="true">📥</span>
-          </button>
+          </a>
         </div>
       </div>
     </article>
@@ -43,7 +43,7 @@ function renderSeminarCard(item, paths) {
 
 export function renderSeminarList(
   container,
-  { seminars, paths, onDownload = () => {} },
+  { seminars, paths, canDownloadDirectly = () => false, onDownload = () => {} },
 ) {
   if (!container) return;
 
@@ -53,6 +53,7 @@ export function renderSeminarList(
 
   for (const button of container.querySelectorAll(".btn-icon-download")) {
     button.addEventListener("click", async (event) => {
+      if (!canDownloadDirectly()) return;
       event.preventDefault();
       const icon = button.querySelector(".icon");
       const originalIcon = icon?.textContent ?? "📥";

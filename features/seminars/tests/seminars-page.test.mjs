@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  createDownloadButton,
-  createFakeDocument,
-} from "../../../tests/helpers/fake-dom.mjs";
+import { createDownloadButton } from "../../../tests/helpers/fake-dom.mjs";
 import { createPageDocument, createTopic, withConsoleError } from "./page-helpers.mjs";
 import {
   createPresentationPath,
@@ -23,13 +20,11 @@ test("presentation and print paths encode the requested topic", () => {
   );
 });
 
-test("opens the vertical print fallback before the download click yields", async () => {
+test("renders and preserves the native vertical print fallback without the CDN", async () => {
   const documentRef = createPageDocument();
-  const pdfDocument = createFakeDocument();
   const button = createDownloadButton("sample", "vertical");
   const opened = [];
-  documentRef.body = pdfDocument.body;
-  documentRef.createElement = pdfDocument.createElement;
+  const requestedIds = [];
   documentRef.list.querySelectorAll = () => [button];
 
   initializeSeminarsPage({
@@ -40,19 +35,18 @@ test("opens the vertical print fallback before the download click yields", async
       alert: () => {},
     },
     getTopics: () => [createTopic()],
-    getTopic: () => createTopic(),
+    getTopic: (id) => { requestedIds.push(id); return createTopic(id); },
   });
 
-  const pendingClick = button.click();
-  const openedBeforeYield = structuredClone(opened);
-  await pendingClick;
+  await button.click();
 
-  assert.deepEqual(openedBeforeYield, [[
-    "../presentation/vertical.html?topic=sample&print=true",
-    "_blank",
-    "noopener,noreferrer",
-  ]]);
-  assert.equal(documentRef.body.children.length, 0);
+  assert.match(
+    documentRef.list.innerHTML,
+    /href="\.\.\/presentation\/vertical\.html\?topic=sample&amp;print=true" target="_blank" rel="noopener noreferrer" role="button"/,
+  );
+  assert.deepEqual(requestedIds, []);
+  assert.deepEqual(opened, []);
+  assert.equal(button.disabled, false);
 });
 
 test("a missing download topic logs its error and restores the legacy alert", async () => {
@@ -64,7 +58,10 @@ test("a missing download topic logs its error and restores the legacy alert", as
     documentRef.list.querySelectorAll = () => [button];
     initializeSeminarsPage({
       documentRef,
-      windowRef: { alert: (message) => alerts.push(message) },
+      windowRef: {
+        html2pdf: () => {},
+        alert: (message) => alerts.push(message),
+      },
       getTopics: () => [createTopic()],
       getTopic: (id) => { requestedIds.push(id); return null; },
     });
