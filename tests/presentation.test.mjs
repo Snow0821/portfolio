@@ -12,9 +12,11 @@ test("presentation package resolves modes, topics, and reactive header output", 
     "pages/presentation/vertical.html",
     "pages/presentation/page.js",
     "pages/presentation/page.css",
-    "components/document-renderer.js",
-    "components/slide-renderer.js",
-    "components/presentation-controller.js",
+    "components/presentation/README.md",
+    "components/presentation/controller.js",
+    "components/presentation/document-renderer.js",
+    "components/presentation/slide-header.js",
+    "components/presentation/slide-renderer.js",
     "styles/components/presentation.css",
   ];
   const missingFiles = requiredFiles.filter(
@@ -56,7 +58,7 @@ test("presentation package resolves modes, topics, and reactive header output", 
   assert.equal(state.shouldPrint, true);
 
   const headerModuleUrl = pathToFileURL(
-    resolve(projectRoot, "components/slide-header.js"),
+    resolve(projectRoot, "components/presentation/slide-header.js"),
   );
   const { SlideHeader, createSlideHeaderMarkup } = await import(
     headerModuleUrl.href

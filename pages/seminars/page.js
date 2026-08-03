@@ -1,6 +1,6 @@
-import { renderReadingDocument } from "../../components/document-renderer.js";
+import { renderReadingDocument } from "../../components/presentation/document-renderer.js";
 import { renderSeminarList } from "../../components/seminar-list.js";
-import { renderPresentationSlides } from "../../components/slide-renderer.js";
+import { renderPresentationSlides } from "../../components/presentation/slide-renderer.js";
 import { seminarList, seminarsDatabase } from "../../data/seminars.js";
 import { exportSeminarPdf } from "../../services/pdf-exporter.js";
 

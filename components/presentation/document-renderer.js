@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/html.js";
+import { escapeHtml } from "../../utils/html.js";
 
 export function renderReadingDocument(container, topicData) {
   if (!container || !topicData?.doc) return;

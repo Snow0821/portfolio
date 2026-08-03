@@ -1,7 +1,7 @@
-import { renderReadingDocument } from "../../components/document-renderer.js";
-import { PresentationController } from "../../components/presentation-controller.js";
-import { renderPresentationSlides } from "../../components/slide-renderer.js";
-import "../../components/slide-header.js";
+import { PresentationController } from "../../components/presentation/controller.js";
+import { renderReadingDocument } from "../../components/presentation/document-renderer.js";
+import { renderPresentationSlides } from "../../components/presentation/slide-renderer.js";
+import "../../components/presentation/slide-header.js";
 import { seminarsDatabase } from "../../data/seminars.js";
 
 export function resolvePresentationState({ database, mode, search = "" }) {

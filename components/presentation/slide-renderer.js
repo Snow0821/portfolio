@@ -1,4 +1,4 @@
-import { escapeAttribute, escapeHtml } from "../utils/html.js";
+import { escapeAttribute, escapeHtml } from "../../utils/html.js";
 
 export function renderPresentationSlides(
   container,
