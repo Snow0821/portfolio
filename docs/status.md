@@ -12,6 +12,9 @@
   - `web-intro-reading.pdf`
   - `web-intro-slides.pdf`
 - 파일이 없는 동안에는 PDF 다운로드 링크를 공개하지 않는다. 전달 후 파일 존재, PDF 시그니처와 브라우저 다운로드를 확인하는 후속 작업이 필요하다.
+- 로컬 Git worktree 등록과 기능 브랜치는 정리됐지만 Codex 실행 프로세스가
+  `.worktrees/seminar-domain-migration/` 빈 폴더를 잠그고 있다. 앱 작업이
+  종료되어 잠금이 풀리면 이 빈 폴더만 삭제한다.
 - Vercel CLI 58.4.4의 전이 의존성 감사 항목 30개는 상위 패키지 업데이트 시 재검토가 필요하다.
 
 ## 세미나 작성 시스템
