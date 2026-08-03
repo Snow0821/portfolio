@@ -20,8 +20,12 @@
 - `60` is a format name, not a slide, word, or time budget. Reading content must not be removed to fit a live presentation.
 - Quantitative density may produce author guidance only; missing content, invalid references, accessibility metadata failures, DOM overflow, or clipping are errors.
 - Preserve the user's untracked `.vscode/` directory and any unrelated worktree changes.
+- Normalize repository-relative paths before comparing them so tests use the same slash-form contract on Windows and POSIX.
+- Wait for fonts, images, and one animation frame before reporting rendered layout overflow.
 - For every task, append the observed RED/GREEN commands and any newly discovered `확인`, `해결`, or `보류` item to the active entry in `docs/history/2026.md`; keep unresolved items in `docs/status.md`.
 - Before completion, run `npm test`, `git diff --check`, and browser verification for the changed seminar routes. Absorb this plan and the design specification into canonical documents, then remove both temporary files.
+
+Commands in this plan assume Node.js 24 is already active. Use `node` directly for focused tests, `npm` on POSIX, and `npm.cmd` in Windows PowerShell. Do not depend on a machine-specific absolute `fnm` path; record the actual command used in the history.
 
 ---
 
@@ -469,6 +473,8 @@ assert.match(slideContainer.innerHTML, /data-layout-boundary/);
 
 For `findLayoutOverflow`, provide two fake boundaries: one with equal scroll/client dimensions and one with `scrollHeight` two pixels larger. Assert only the second is returned with `vertical: true`.
 
+For `inspectLayoutAfterRender`, assert that a pending image delays inspection until its load or error signal settles, while an already complete image does not delay the result.
+
 - [ ] **Step 2: Run the layout test and verify RED**
 
 Run:
@@ -527,11 +533,12 @@ export function findLayoutOverflow(root) {
 }
 ```
 
-Wait for fonts and one animation frame before inspecting the real page:
+Wait for fonts, all images below the rendered root, and one animation frame before inspecting the real page. An image error must settle the wait rather than blocking inspection; use `decode()` when available for already loaded images and tolerate decode rejection before measuring:
 
 ```js
 export async function inspectLayoutAfterRender(root, { documentRef, windowRef } = {}) {
   if (documentRef?.fonts?.ready) await documentRef.fonts.ready;
+  await waitForImages(root);
   await new Promise((resolve) => {
     if (windowRef?.requestAnimationFrame) windowRef.requestAnimationFrame(resolve);
     else resolve();
@@ -929,14 +936,18 @@ git commit -m "refactor: load seminar feature pages"
 
 Move the seminar-specific legacy path and presentation-style assertions out of root `tests/structure.test.mjs` into the feature structure test, then add every deleted path above to its `forbiddenPaths`. Keep the root test's canonical-document, non-seminar legacy, and generic HTML/CSS reference checks. Add `features` to `scanRoots`, but exclude `features/seminars/data/topics/` from line counting because the project policy classifies content data separately from executable modules; still include topic files in local import resolution. Scan page JS sources and assert imports from the feature match only `../../features/seminars/index.js`. Assert the old `data`, `services`, and seminar-specific component/style directories do not exist after removal.
 
-Apply the content-data exception only to line records, not to import checks:
+Apply the content-data exception only to line records, not to import checks. Normalize the repository-relative path before both exclusion and reporting; import `sep` from `node:path`:
 
 ```js
 const records = sourceFiles
-  .filter((path) => !relative(projectRoot, path).startsWith("features/seminars/data/topics/"))
   .map((path) => ({
-    path: relative(projectRoot, path),
-    lines: countLines(readFileSync(path, "utf8")),
+    absolutePath: path,
+    relativePath: relative(projectRoot, path).split(sep).join("/"),
+  }))
+  .filter(({ relativePath }) => !relativePath.startsWith("features/seminars/data/topics/"))
+  .map(({ absolutePath, relativePath }) => ({
+    path: relativePath,
+    lines: countLines(readFileSync(absolutePath, "utf8")),
   }));
 ```
 
