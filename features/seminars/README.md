@@ -9,7 +9,8 @@ seminar rules or content.
 The public module is `features/seminars/index.js`. It exports only
 `initializeSeminarsPage` and `initializePresentationPage`. The two existing
 seminar and presentation URL contracts remain unchanged; their page
-entrypoints import only this facade and never feature internals.
+entrypoints may use this facade only, across static, bare side-effect, and
+dynamic import forms; they never import feature internals.
 
 ## Internal roles
 

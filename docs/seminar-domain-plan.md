@@ -1000,7 +1000,7 @@ git add -A components data services styles tests features/seminars/README.md fea
 git commit -m "refactor: remove legacy seminar structure"
 ```
 
-Before committing, inspect `git status --short` and ensure `.vscode/` is not staged. If `git add -A` staged `.vscode/`, unstage only `.vscode/` before committing and leave its files untouched.
+Before committing, inspect `git status --short` and ensure only intended Task 7 changes are staged.
 
 ### Task 8: Verify browser behavior and normalize permanent documentation
 

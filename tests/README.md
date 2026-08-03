@@ -12,6 +12,8 @@ local-reference checks, and module policy. Module policy scans feature modules
 and resolves their imports; only seminar topic content is excluded from line
 limits. Seminar contract, data, layouts, UI, pages, PDF lifecycle, and the
 public-boundary/legacy-ownership checks belong in `features/seminars/tests/`.
+Those boundary checks cover static, bare side-effect, and dynamic feature
+imports, all of which may use only the public facade.
 
 ## Root test files
 

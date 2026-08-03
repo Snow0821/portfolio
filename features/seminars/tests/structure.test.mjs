@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 
+import { extractLocalModuleReferences } from "../../../tests/helpers/files.mjs";
+
 const projectRoot = resolve(import.meta.dirname, "../../..");
 const htmlPages = [
   "pages/seminars/index.html",
@@ -10,6 +12,8 @@ const htmlPages = [
   "pages/presentation/vertical.html",
 ];
 const pageModules = ["pages/seminars/page.js", "pages/presentation/page.js"];
+const featureRoot = "../../features/seminars/";
+const publicFacade = "../../features/seminars/index.js";
 const featureImports = [
   '@import "./seminar-list.css";',
   '@import "./content-block.css";',
@@ -44,6 +48,16 @@ function readProjectFile(path) {
   return readFileSync(resolve(projectRoot, path), "utf8");
 }
 
+function getFeatureImports(source) {
+  return extractLocalModuleReferences(source).filter((reference) =>
+    reference.startsWith(featureRoot),
+  );
+}
+
+function assertPublicFeatureImports(path, source) {
+  assert.deepEqual(getFeatureImports(source), [publicFacade], `${path}: facade only`);
+}
+
 test("seminar pages load global, feature, and page styles in cascade order", () => {
   const styles = [
     '<link rel="stylesheet" href="../../styles/main.css">',
@@ -65,14 +79,22 @@ test("seminar pages load global, feature, and page styles in cascade order", () 
 test("thin seminar pages import only the public feature facade", () => {
   for (const modulePath of pageModules) {
     const source = readProjectFile(modulePath);
-    assert.match(
-      source,
-      /from "\.\.\/\.\.\/features\/seminars\/index\.js"/,
-      `${modulePath}: facade import`,
-    );
-    const imports = [...source.matchAll(/from "(\.\.\/\.\.\/features\/seminars\/[^"\n]+)"/g)]
-      .map((match) => match[1]);
-    assert.deepEqual(imports, ["../../features/seminars/index.js"]);
+    assertPublicFeatureImports(modulePath, source);
+  }
+});
+
+test("page boundary detects bare and dynamic feature deep imports", () => {
+  const deepImports = [
+    ["..", "..", "features", "seminars", "components", "seminar-list.js"].join("/"),
+    ["..", "..", "features", "seminars", "layouts", "presentation-slides.js"].join("/"),
+  ];
+  const sources = [
+    `import "${deepImports[0]}";`,
+    `import("${deepImports[1]}");`,
+  ];
+  assert.deepEqual(getFeatureImports(sources.join("\n")), deepImports);
+  for (const source of sources) {
+    assert.throws(() => assertPublicFeatureImports("fixture", source), /facade only/);
   }
 });
 
@@ -85,7 +107,7 @@ test("seminar domain owns no legacy modules or directories", () => {
   const legacyOwners = [
     legacyPath("components", "presentation"),
     "data",
-    legacyPath("services", "pdf"),
+    "services",
     legacyPath("styles", "components", "presentation"),
   ];
   const existingOwners = legacyOwners.filter((path) =>
