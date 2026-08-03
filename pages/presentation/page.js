@@ -7,6 +7,5 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     windowRef: window,
     mode: document.body.dataset.presentationMode,
     topicId: params.get("topic"),
-    shouldPrint: params.get("print") === "true",
   });
 }

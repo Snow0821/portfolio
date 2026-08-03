@@ -41,7 +41,7 @@
 - 각 페이지 패키지는 HTML, 초기화 JavaScript, 페이지 전용 CSS를 함께 가진다.
 - 페이지 모듈은 조립과 초기화만 담당한다.
 - 재사용 가능한 마크업, 상태, 이벤트 동작은 `components/`에 둔다.
-- PDF 생성처럼 UI가 아닌 기능은 `services/`에 둔다.
+- 기능 전용 데이터, UI, 비-UI 동작과 에셋은 같은 `features/<feature-name>/` 경계에 둔다.
 - 화면과 독립적인 콘텐츠 데이터는 `data/`에 둔다.
 
 ### 2.4 공통 CSS 우선
@@ -119,11 +119,18 @@ portfolio/
 │       ├── slide-header.js
 │       └── slide-renderer.js
 │
-├── services/
-│   └── pdf/
-│       ├── README.md
-│       ├── exporter.js
-│       └── render-zone.js
+├── features/
+│   └── seminars/
+│       ├── assets/
+│       │   ├── topics/
+│       │   └── pdf/
+│       │       └── README.md
+│       ├── components/
+│       ├── data/
+│       ├── formats/
+│       ├── layouts/
+│       ├── styles/
+│       └── tests/
 │
 ├── utils/
 │   └── html.js
@@ -170,7 +177,6 @@ portfolio/
     ├── home.test.mjs
     ├── seminars.test.mjs
     ├── presentation.test.mjs
-    ├── pdf.test.mjs
     ├── module-policy.test.mjs
     ├── structure.test.mjs
     └── helpers/
@@ -188,9 +194,9 @@ URL로 직접 열리는 화면을 소유한다. 각 페이지의 HTML은 콘텐�
 
 독립적인 UI 또는 사용자 상호작용 단위를 소유한다. 각 컴포넌트는 입력, 출력, 의존성을 코드만 읽지 않아도 설명할 수 있어야 한다. 특정 페이지 URL이나 페이지 전용 CSS에 의존하지 않는다.
 
-### `services/`
+### `features/`
 
-PDF 내보내기처럼 UI 표현과 분리할 수 있는 기능을 소유한다. 임시 리소스를 생성하는 서비스는 성공과 실패 여부에 관계없이 정리 책임까지 가진다.
+기능별 데이터, UI, 레이아웃, 에셋, 스타일과 테스트를 한 변경 경계에서 소유한다. `features/seminars/`는 구조화 세미나 원본과 두 HTML 표현을 소유한다. `assets/pdf/`는 수동 검토 후 전달될 네 정적 PDF의 이름과 게시 절차만 예약하며 런타임 생성 서비스는 두지 않는다.
 
 ### `api/`
 
@@ -218,7 +224,7 @@ Vercel Functions 진입점을 소유한다. 각 `.mjs` 파일은 독립적인 HT
 
 ```text
 page → component → utility/data
-page → PDF exporter → render zone
+page → feature public facade → feature component/layout/data
 page.css → shared styles
 component → component
 component → utility
@@ -248,11 +254,11 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 
 ### 새 세미나 주제
 
-- `data/topics/<topic-id>.js`에 발표 슬라이드와 읽기 문서 데이터를 추가한다.
-- `data/seminars.js`에서 주제를 import하고 database 및 목록에 등록한다.
+- `features/seminars/data/topics/<topic-id>.js`에 공통 의미 블록과 표현 참조를 추가한다.
+- `features/seminars/data/seminars.js`에서 주제를 import하고 registry와 목록에 등록한다.
 - 별도 HTML을 만들지 않고 공용 presentation 페이지의 `topic` 쿼리로 접근한다.
 - `npm test`와 세미나·가로·세로 화면 브라우저 검증을 수행하고 작업 이력을 기록한다.
-- 세미나 전용 구현을 `features/seminars/`가 소유하는 목표 구조와 `introductory-60` 형식은 승인되었지만 아직 구현되지 않았다. 전체 이전 전에는 현재 데이터 형식을 유지하고 두 구조를 섞지 않으며 진행 상태는 `docs/status.md`를 기준으로 확인한다.
+- 수동 PDF를 함께 공개하려면 `features/seminars/assets/pdf/README.md`의 파일명·방향·검증 계약을 따른다. 실제 파일이 없으면 링크를 만들지 않는다.
 
 ### 새 사용자 화면
 
@@ -278,12 +284,12 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - 금지된 레거시 경로나 존재하지 않는 내부 파일을 참조하지 않는다.
 - 홈 콘텐츠 조각 네 개가 정상적으로 로드된다.
 - 세미나 목록이 데이터에서 렌더링된다.
-- 모든 PDF 다운로드 버튼에 구분 가능한 접근성 이름이 있다.
+- 세미나 목록에는 읽기·발표 HTML 링크만 있고 존재하지 않는 PDF 다운로드 컨트롤이 없다.
 - 가로·세로 viewer의 제목, 배지, 모드 전환 링크가 현재 주제를 반영한다.
 - 세로 viewer에는 발표용 이전·다음 버튼이 나타나지 않는다.
 - 가로 viewer의 키보드 및 버튼 이동이 정상 동작한다.
-- PDF용 가로 DOM이 `.slide-container.horizontal` 구조를 가진다.
-- PDF 생성 성공과 실패 후 임시 DOM이 남지 않는다.
+- 수동 인쇄 시 가로 슬라이드는 landscape, 세로 읽기 문서는 portrait 출력에 적합한 print CSS를 유지한다.
+- PDF 링크를 추가할 때 파일 존재, PDF 시그니처와 실제 브라우저 다운로드를 모두 확인한다.
 - 모바일 너비에서 사이트 헤더, 세미나 카드, 프레젠테이션 헤더가 사용할 수 있는 상태다.
 - `npm run dev:vercel` 환경에서 `/api/health`가 HTTP 200과 JSON `status: "ok"`를 반환한다.
 - 배포 변경은 Vercel Preview에서 정적 페이지와 `/api/health`를 한 번 더 검증한다. Preview 생성에 계정 연결이나 외부 배포 권한이 필요하면 사용자 수행 단계로 명시한다.

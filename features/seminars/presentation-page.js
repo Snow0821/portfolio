@@ -11,17 +11,15 @@ export function initializePresentationPage({
   windowRef = window,
   mode,
   topicId,
-  shouldPrint = false,
   getTopic = getSeminar,
   inspectLayout = inspectLayoutAfterRender,
 } = {}) {
   const container = documentRef.getElementById("presentation-container");
   try {
-    const state = resolveState({ mode, topicId, shouldPrint, getTopic });
+    const state = resolveState({ mode, topicId, getTopic });
     configurePage(documentRef, state);
     renderPage(container, state, documentRef);
     inspectRenderedLayout(inspectLayout, container, documentRef, windowRef);
-    if (state.shouldPrint) windowRef.setTimeout(() => windowRef.print(), 350);
     return { ok: true, ...state };
   } catch (error) {
     console.error(error);
@@ -30,12 +28,12 @@ export function initializePresentationPage({
   }
 }
 
-function resolveState({ mode, topicId, shouldPrint, getTopic }) {
+function resolveState({ mode, topicId, getTopic }) {
   const normalizedMode = mode === "vertical" ? "vertical" : "horizontal";
   const resolvedTopicId = topicId ?? "python-intro";
   const topicData = getTopic(resolvedTopicId);
   if (!topicData) throw new Error(`Unknown seminar topic: ${resolvedTopicId}`);
-  return { mode: normalizedMode, topicData, topicId: topicData.id, shouldPrint: Boolean(shouldPrint) };
+  return { mode: normalizedMode, topicData, topicId: topicData.id };
 }
 
 function configurePage(documentRef, state) {

@@ -1,41 +1,45 @@
 # Seminar Feature Domain
 
-`features/seminars/` owns seminar-specific data, rendering, layouts, assets,
-PDF support, and tests. Pages remain URL and DOM entrypoints; they do not own
-seminar rules or content.
+`features/seminars/` owns seminar-specific data, rendering, layouts, local
+assets, styles, and tests. Pages remain URL and DOM entrypoints; they do not
+own seminar rules or content.
 
 ## Public boundary
 
 The public module is `features/seminars/index.js`. It exports only
-`initializeSeminarsPage` and `initializePresentationPage`. The two existing
-seminar and presentation URL contracts remain unchanged; their page
-entrypoints may use this facade only, across static, bare side-effect, and
-dynamic import forms; they never import feature internals.
+`initializeSeminarsPage` and `initializePresentationPage`. The seminar list,
+horizontal presentation, and vertical reading entrypoints may use this facade
+only; they never import feature internals.
 
 ## Internal roles
 
 - `data/` contains topic sources, registry accessors, and the validator.
 - `formats/` contains human-facing authoring rules.
-- `components/`, `layouts/`, and `services/` contain feature-local UI,
-  projections, and PDF support.
-- `assets/` holds topic-owned local images under each topic ID.
-- `tests/` verifies the feature contract and feature behavior.
+- `components/` and `layouts/` contain feature-local UI and projections.
+- `assets/topics/` holds topic-owned local images under each topic ID.
+- `assets/pdf/README.md` reserves the manual PDF handoff contract; it does not
+  imply that a PDF file or download link exists.
+- `styles/` owns both screen and manual browser-print presentation.
+- `tests/` verifies the feature contract and behavior.
 
 Feature modules may use `utils/html.js` and global CSS tokens. Global modules
 must not import seminar internals. Promote a feature module to a global module
 only after a real second consumer demonstrates that shared ownership is needed.
 Legacy top-level seminar data, presentation components, PDF services, and
-seminar styles are intentionally absent; add future seminar behavior under
-this feature rather than restoring a top-level owner.
+seminar styles are intentionally absent.
 
-Seminar-list PDF controls are native `print=true` anchors with distinct
-accessible button names. They retain browser navigation when `html2pdf` is
-unavailable; the list intercepts the click for loading state and direct export
-only when its synchronous availability predicate succeeds. Direct export uses
-a per-control in-flight guard and `aria-disabled`. Mouse and Enter retain the
-anchor's native new-tab fallback; Space uses the page's injected same-tab
-location navigation when the CDN is absent and remains intercepted for direct
-export when it is present.
+## PDF publication boundary
+
+The runtime exposes only the two HTML views. It does not load a PDF library,
+generate a PDF, open a print fallback, or display a download control. Feature
+print CSS remains available when the user manually prints a visible reading or
+presentation page.
+
+After the user supplies and visually reviews the four files reserved in
+`assets/pdf/README.md`, a later change may add ordinary `<a download>` links.
+That change must first verify each file exists, starts with a PDF signature,
+and downloads successfully in the browser. A missing file must never have a
+published link.
 
 ## Validation lifecycle
 

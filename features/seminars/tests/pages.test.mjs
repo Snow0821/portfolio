@@ -23,7 +23,7 @@ test("presentation initializer renders a vertical topic and defaults an omitted 
   });
   assert.deepEqual(requestedIds, ["python-intro"]);
   assert.deepEqual(result, {
-    ok: true, mode: "vertical", topicData: topic, topicId: "python-intro", shouldPrint: false,
+    ok: true, mode: "vertical", topicData: topic, topicId: "python-intro",
   });
   assert.match(documentRef.container.innerHTML, /reading-document/);
   assert.equal(documentRef.header.getAttribute("alt-text"), "발표용 슬라이드 ↗");
@@ -58,21 +58,20 @@ test("presentation initializer handles a thrown topic validation error", async (
   });
 });
 
-test("horizontal presentation constructs its controller and schedules one print", () => {
+test("horizontal presentation constructs its controller without print scheduling", () => {
   const documentRef = createPageDocument();
-  const timers = [];
-  let prints = 0;
   const result = initializePresentationPage({
     documentRef,
-    windowRef: { setTimeout: (callback, delay) => timers.push({ callback, delay }), print: () => { prints += 1; } },
-    mode: "horizontal", topicId: "sample", shouldPrint: true,
+    windowRef: {
+      setTimeout: () => { throw new Error("unexpected print timer"); },
+      print: () => { throw new Error("unexpected print call"); },
+    },
+    mode: "horizontal", topicId: "sample",
     getTopic: () => createTopic(), inspectLayout: async () => [],
   });
   assert.equal(result.ok, true);
   assert.ok(documentRef.calls.includes(".slide-container.horizontal"));
-  assert.deepEqual(timers.map(({ delay }) => delay), [350]);
-  timers[0].callback();
-  assert.equal(prints, 1);
+  assert.equal("shouldPrint" in result, false);
 });
 
 test("invalid or omitted presentation mode preserves horizontal behavior", () => {
@@ -122,7 +121,7 @@ test("layout inspection records overflow, empty, and rejected outcomes", async (
 test("seminar list initializer renders and catches injected resolution errors", async () => {
   const documentRef = createPageDocument();
   const success = initializeSeminarsPage({
-    documentRef, windowRef: {}, getTopics: () => [createTopic()], getTopic: () => createTopic(),
+    documentRef, getTopics: () => [createTopic()],
   });
   assert.deepEqual(success, { ok: true });
   assert.match(documentRef.list.innerHTML, /seminar-card/);
@@ -130,7 +129,7 @@ test("seminar list initializer renders and catches injected resolution errors", 
   await withConsoleError(async () => {
     const failedDocument = createPageDocument();
     const failure = initializeSeminarsPage({
-      documentRef: failedDocument, windowRef: {},
+      documentRef: failedDocument,
       getTopics: () => { throw new TypeError("invalid fixture"); },
     });
     assert.equal(failure.ok, false);

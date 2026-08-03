@@ -43,6 +43,19 @@ const forbiddenPaths = [
   legacyPath("styles", "components", "presentation", "reading-document.css"),
   legacyPath("styles", "components", "presentation", "slide-card.css"),
 ];
+const retiredPdfPaths = [
+  "features/seminars/services/pdf/README.md",
+  "features/seminars/services/pdf/exporter.js",
+  "features/seminars/services/pdf/render-zone.js",
+  "features/seminars/tests/pdf.test.mjs",
+];
+const runtimePdfSources = [
+  "features/seminars/components/seminar-list.js",
+  "features/seminars/seminars-page.js",
+  "features/seminars/presentation-page.js",
+  "pages/seminars/index.html",
+  "pages/presentation/page.js",
+];
 
 function readProjectFile(path) {
   return readFileSync(resolve(projectRoot, path), "utf8");
@@ -114,6 +127,21 @@ test("seminar domain owns no legacy modules or directories", () => {
     existsSync(resolve(projectRoot, path)),
   );
   assert.deepEqual(existingOwners, []);
+});
+
+test("seminar pages own no runtime PDF behavior", () => {
+  const existingPaths = retiredPdfPaths.filter((path) =>
+    existsSync(resolve(projectRoot, path)),
+  );
+  assert.deepEqual(existingPaths, []);
+
+  const runtimeSources = runtimePdfSources
+    .map((path) => readProjectFile(path))
+    .join("\n");
+  assert.doesNotMatch(
+    runtimeSources,
+    /html2pdf|print=true|createPrintFallbackUrl|exportSeminarPdf|pdf-temp-render-zone/,
+  );
 });
 
 test("global styles exclude seminar ownership and feature styles define its cascade", () => {
