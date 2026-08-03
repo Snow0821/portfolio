@@ -19,7 +19,7 @@
 - `introductory-60` targets interested non-specialists and uses `problem → prior-art → method → cases → conclusion` in that order; visible section titles remain topic-specific.
 - `60` is a format name, not a slide, word, or time budget. Reading content must not be removed to fit a live presentation.
 - Quantitative density may produce author guidance only; missing content, invalid references, accessibility metadata failures, DOM overflow, or clipping are errors.
-- Preserve the user's untracked `.vscode/` directory and any unrelated worktree changes.
+- Preserve unrelated worktree changes.
 - Normalize repository-relative paths before comparing them so tests use the same slash-form contract on Windows and POSIX.
 - Wait for fonts, images, and one animation frame before reporting rendered layout overflow.
 - For every task, append the observed RED/GREEN commands and any newly discovered `확인`, `해결`, or `보류` item to the active entry in `docs/history/2026.md`; keep unresolved items in `docs/status.md`.
@@ -1065,7 +1065,7 @@ git diff --check
 git status --short
 ```
 
-Expected: all tests PASS, `git diff --check` has no output, only intended migration/docs changes are staged or unstaged, and the user's `.vscode/` remains untracked and untouched.
+Expected: all tests PASS, `git diff --check` has no output, and only intended task changes are staged or unstaged.
 
 - [ ] **Step 6: Commit final documentation and verification**
 
