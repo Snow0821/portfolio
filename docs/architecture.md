@@ -4,7 +4,7 @@
 
 ## 1. 목적
 
-이 프로젝트는 별도의 빌드 도구 없이 배포할 수 있는 순수 정적 사이트를 유지한다. `index.html`을 제외한 모든 화면은 `pages/` 아래에서 명시적인 페이지 패키지를 가지며, 실제 구현은 재사용 가능한 컴포넌트를 중심으로 구성한다.
+이 프로젝트의 프런트엔드는 별도의 빌드 결과물 없이 Vercel에 배포할 수 있는 순수 정적 사이트를 유지한다. `index.html`을 제외한 모든 화면은 `pages/` 아래에서 명시적인 페이지 패키지를 가지며, 실제 구현은 재사용 가능한 컴포넌트를 중심으로 구성한다. 로컬 개발과 검증은 Docker 안의 Node.js 24와 Vercel CLI로 통일하고, 서버 기능은 루트 `api/`의 Vercel Functions로 확장한다.
 
 구조가 확장되더라도 다음 질문에 빠르게 답할 수 있어야 한다.
 
@@ -19,11 +19,23 @@
 
 ### 2.1 정적 사이트 유지
 
-- 런타임과 배포에 번들러, 프레임워크 또는 서버 라우팅을 요구하지 않는다.
+- 프런트엔드 배포에 번들러, 프레임워크 또는 별도 애플리케이션 서버를 요구하지 않는다.
 - 페이지는 표준 HTML, CSS, JavaScript ES module만으로 실행한다.
 - 모든 경로는 정적 파일 서버에서 직접 해석할 수 있어야 한다.
+- API 기능은 Vercel이 직접 빌드하고 실행하는 `api/*.mjs` Vercel Functions로 제공한다.
 
-### 2.2 페이지 패키지와 컴포넌트 중심 구현
+### 2.2 개발 환경과 배포 환경 분리
+
+- 로컬 개발 환경은 `Dockerfile.dev`와 `compose.yaml`로 재현한다.
+- 컨테이너의 Node.js major version은 Vercel과 동일한 `24.x`로 고정한다.
+- 로컬 정적 페이지와 Vercel Functions 통합 실행에는 `vercel dev`를 사용한다.
+- Docker는 개발과 검증에만 사용하며 `Dockerfile.vercel` 또는 컨테이너 기반 운영 배포를 도입하지 않는다.
+- 운영과 Preview 배포는 Git 저장소를 연결한 Vercel의 기본 배포 흐름을 유지한다.
+- 프런트엔드 번들링이 실제 요구사항이 되기 전에는 Vite와 별도 `dist/` 빌드 단계를 추가하지 않는다.
+
+참고: [Vercel CLI 로컬 개발](https://vercel.com/docs/cli/dev.rsc), [Vercel Functions Node.js 런타임](https://vercel.com/docs/functions/runtimes/node-js), [Vercel 지원 Node.js 버전](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)
+
+### 2.3 페이지 패키지와 컴포넌트 중심 구현
 
 - 루트 `index.html`은 프로젝트의 유일한 예외 진입 페이지다.
 - 그 외 URL 진입 화면은 `pages/<page-name>/` 아래에 둔다.
@@ -33,7 +45,7 @@
 - PDF 생성처럼 UI가 아닌 기능은 `services/`에 둔다.
 - 화면과 독립적인 콘텐츠 데이터는 `data/`에 둔다.
 
-### 2.3 공통 CSS 우선
+### 2.4 공통 CSS 우선
 
 CSS 의존 순서는 다음과 같다.
 
@@ -48,7 +60,7 @@ tokens → base → layouts → components → page.css
 - `page.css`는 전역 태그의 기본 표현을 재정의하지 않는다.
 - `!important`는 인쇄처럼 별도의 표현 매체에서 우선순위를 강제로 재정의해야 하는 경우에만 허용한다.
 
-### 2.4 모든 작업에 문서화 동반
+### 2.5 모든 작업에 문서화 동반
 
 프로젝트 파일을 변경하는 모든 작업은 같은 작업 범위 안에서 관련 문서와 작업 이력을 함께 갱신해야 한다. 문서화가 끝나지 않은 작업은 완료로 간주하지 않는다.
 
@@ -70,6 +82,15 @@ portfolio/
 ├── index.html
 ├── AGENTS.md
 ├── README.md
+├── Dockerfile.dev
+├── compose.yaml
+├── .dockerignore
+├── .gitignore
+├── package.json
+├── package-lock.json
+│
+├── api/
+│   └── health.mjs
 │
 ├── pages/
 │   ├── seminars/
@@ -127,7 +148,7 @@ portfolio/
 │       └── 2026.md
 │
 └── tests/
-    └── verify_structure.py
+    └── verify-structure.mjs
 ```
 
 ## 4. 영역별 책임
@@ -143,6 +164,10 @@ URL로 직접 열리는 화면을 소유한다. 각 페이지의 HTML은 콘텐�
 ### `services/`
 
 PDF 내보내기처럼 UI 표현과 분리할 수 있는 기능을 소유한다. 임시 리소스를 생성하는 서비스는 성공과 실패 여부에 관계없이 정리 책임까지 가진다.
+
+### `api/`
+
+Vercel Functions 진입점을 소유한다. 각 `.mjs` 파일은 독립적인 HTTP API 계약을 제공하며 브라우저 전용 모듈에 의존하지 않는다. 첫 함수인 `/api/health`는 로컬 `vercel dev`와 Vercel Preview 환경의 통합 상태를 검증하는 smoke endpoint다.
 
 ### `data/`
 
@@ -169,6 +194,7 @@ page → component → service/data
 page.css → shared styles
 component → component
 service → data 또는 전달받은 DOM 렌더러
+api → 서버 전용 유틸리티 또는 외부 서비스
 ```
 
 다음 역방향 의존은 금지한다.
@@ -177,6 +203,7 @@ service → data 또는 전달받은 DOM 렌더러
 - 공용 CSS가 특정 페이지의 `page.css`를 import하는 구조
 - 데이터 모듈이 DOM이나 UI 모듈에 의존하는 구조
 - 서비스가 특정 페이지 URL을 하드코딩하는 구조
+- API가 브라우저 DOM이나 페이지 컴포넌트에 의존하는 구조
 
 ## 6. 페이지와 URL 정책
 
@@ -184,6 +211,7 @@ service → data 또는 전달받은 DOM 렌더러
 - 세미나 목록은 `/pages/seminars/`로 접근한다.
 - 발표 자료는 `/pages/presentation/horizontal.html?topic=<id>`로 접근한다.
 - 읽기 자료는 `/pages/presentation/vertical.html?topic=<id>`로 접근한다.
+- 로컬과 배포 환경의 API 상태는 `/api/health`로 확인한다.
 - 내부 링크는 모두 새 경로로 갱신한다.
 - 외부에 공개된 기존 URL이 있다는 근거가 없으므로 주제별 리다이렉트 HTML과 루트 `seminar.html`은 유지하지 않는다.
 - 향후 공개 URL 호환 요구가 생기면 리다이렉트 파일을 예외로 추가하고 그 이유를 `docs/decisions.md`에 기록한다.
@@ -204,7 +232,10 @@ service → data 또는 전달받은 DOM 렌더러
 - PDF 실패 시 임시 DOM을 항상 제거한다.
 - 다운로드 버튼에 주제와 형식을 포함한 접근성 이름을 제공한다.
 - HTML에서 그대로 노출되는 Markdown 강조 문법을 시맨틱 HTML로 교체한다.
-- 오래된 PowerShell 검증기를 Python 표준 라이브러리만 사용하는 `tests/verify_structure.py`로 교체한다.
+- 개발 전용 Docker 환경에 Node.js 24와 Vercel CLI를 고정한다.
+- `package.json`에 Node.js `24.x`, 로컬 실행과 구조 검증 명령을 선언한다.
+- `/api/health` Vercel Function을 추가해 로컬과 Preview API 동작을 검증한다.
+- 오래된 PowerShell 검증기를 Node.js 표준 라이브러리만 사용하는 `tests/verify-structure.mjs`로 교체한다.
 - `README.md`, 현재 문서와 연도별 작업 이력을 함께 갱신한다.
 
 ## 8. 검증 기준
@@ -212,6 +243,9 @@ service → data 또는 전달받은 DOM 렌더러
 구조 개편은 다음 조건을 모두 만족해야 완료된다.
 
 - 구조 검증 스크립트가 모든 필수 파일과 내부 참조를 확인하고 통과한다.
+- `docker compose config`와 개발 이미지 빌드가 성공한다.
+- 컨테이너 안에서 `node --version`이 `v24`로 시작한다.
+- 컨테이너 안에서 `npm test`가 통과한다.
 - 삭제된 구경로를 참조하는 HTML, JavaScript, CSS가 없다.
 - 홈 콘텐츠 조각 네 개가 정상적으로 로드된다.
 - 세미나 목록이 데이터에서 렌더링된다.
@@ -222,6 +256,8 @@ service → data 또는 전달받은 DOM 렌더러
 - PDF용 가로 DOM이 `.slide-container.horizontal` 구조를 가진다.
 - PDF 생성 성공과 실패 후 임시 DOM이 남지 않는다.
 - 모바일 너비에서 사이트 헤더, 세미나 카드, 프레젠테이션 헤더가 사용할 수 있는 상태다.
+- `vercel dev` 환경에서 `/api/health`가 HTTP 200과 JSON `status: "ok"`를 반환한다.
+- Vercel Preview 배포 후 정적 페이지와 `/api/health`를 한 번 더 검증한다. Preview 생성에 계정 연결이나 외부 배포 권한이 필요하면 완료 전 사용자 수행 단계로 명시한다.
 - 실제 수행한 검증 명령과 결과가 `docs/history/2026.md`에 기록된다.
 
 ## 9. 문서 유지 전략
