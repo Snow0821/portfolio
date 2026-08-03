@@ -2,7 +2,7 @@ export const pythonIntroData = {
   id: "python-intro",
   format: "introductory-60",
   title: "파이썬 개론",
-  summary: "프로그래밍 입문자를 위한 파이썬의 기본 문법, 자료 구조, 변수와 제어문 개념을 다룹니다.",
+  summary: "프로그래밍 입문자를 위한 파이썬 기초 문법, 핵심 데이터 구조, 변수 및 제어문 개념을 다룹니다.",
   tags: ["Python", "기초 입문"],
   author: "Snow Choi",
   updated: "2026-08-03",
@@ -63,18 +63,41 @@ name = "Snow Choi"
 age = 28
 skills = ["Python", "Web", "AI"]
 
+# Dict 구조
 profile = {
     "role": "Researcher",
-    "active": True,
+    "active": True
 }
 
-print(f"Hello, {name}!")`,
+print(f"Hello, \${name}!")`,
         },
         {
           id: "python-method-control",
           type: "paragraph",
           summary: "if와 for/while은 조건에 따라 판단하고 반복 작업을 자동화하는 제어 흐름입니다.",
           detail: "함수는 def로 이름 붙인 동작을 재사용하게 하며, 컬렉션과 함께 데이터 처리 과정을 작은 단위로 정리하게 합니다.",
+        },
+        {
+          id: "python-method-reading-code",
+          type: "code",
+          language: "python",
+          caption: "기존 기본 데이터 타입 실습 예제",
+          code: `# 파이썬 기본 데이터 타입 실습 예제
+user_name = "Snow Choi"       # str
+user_age = 28                 # int
+is_researcher = True          # bool
+
+# List 예시
+skills = ["Python", "Machine Learning", "Web"]
+
+# Dictionary 예시
+profile = {
+    "name": user_name,
+    "age": user_age,
+    "role": "Lecturer & Researcher"
+}
+
+print(f"Hello, \${user_name}!")`,
         },
       ],
     },

@@ -2,7 +2,7 @@ export const webIntroData = {
   id: "web-intro",
   format: "introductory-60",
   title: "웹 개론",
-  summary: "인터넷 동작 원리부터 HTTP, 웹 아키텍처, HTML/CSS/JavaScript와 브라우저 렌더링을 설명합니다.",
+  summary: "인터넷 동작 원리부터 HTTP 프로토콜, 현대 웹 아키텍처, 그리고 HTML/CSS/JavaScript의 기본 요소와 시맨틱 웹 구조를 설명합니다.",
   tags: ["HTML/CSS/JS", "Web Architecture"],
   author: "Snow Choi",
   updated: "2026-08-03",
@@ -76,6 +76,28 @@ export const webIntroData = {
           type: "paragraph",
           summary: "브라우저는 HTML에서 DOM을, CSS에서 CSSOM을 만든 뒤 이를 결합해 레이아웃과 페인트 과정을 거쳐 화면을 그립니다.",
           detail: "이 흐름을 알면 구조·표현·상호작용을 나누어 설계하고, 화면이 느리거나 예상과 다르게 보일 때 원인을 찾기 쉬워집니다.",
+        },
+        {
+          id: "web-method-reading-code",
+          type: "code",
+          language: "html",
+          caption: "기존 시맨틱 HTML5 예제",
+          code: `<!-- 시맨틱 HTML5 구조 예시 -->
+<article class="card">
+  <header>
+    <h2>웹 개발 기본</h2>
+  </header>
+  <p>시맨틱 태그는 검색엔진(SEO)과 접근성(a11y)에 매우 중요합니다.</p>
+  <button id="theme-btn">다크모드 전환</button>
+</article>
+
+/* Vanilla CSS - Design System */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  padding: 1.5rem;
+  border-radius: 8px;
+}`,
         },
       ],
     },
