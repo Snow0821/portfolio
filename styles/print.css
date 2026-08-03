@@ -3,7 +3,7 @@
     background: #ffffff;
   }
 
-  body > header {
+  site-header {
     display: none;
   }
 

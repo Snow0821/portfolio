@@ -48,3 +48,44 @@ test("health function returns a successful JSON response", async () => {
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { status: "ok" });
 });
+
+test("shared home foundation uses the new component and content paths", () => {
+  const requiredFiles = [
+    "components/site-header.js",
+    "content/home/about.html",
+    "content/home/research.html",
+    "content/home/career.html",
+    "content/home/academic.html",
+    "styles/main.css",
+    "styles/base.css",
+    "styles/layouts.css",
+    "styles/components/site-header.css",
+    "styles/components/content-section.css",
+  ];
+  const missingFiles = requiredFiles.filter(
+    (path) => !existsSync(resolve(root, path)),
+  );
+  const homePage = readFileSync(resolve(root, "index.html"), "utf8");
+
+  assert.deepEqual(missingFiles, []);
+  assert.match(homePage, /\.\/styles\/main\.css/);
+  assert.match(homePage, /\.\/components\/site-header\.js/);
+  assert.match(homePage, /\.\/content\/home\/about\.html/);
+  assert.match(homePage, /\.\/pages\/seminars\//);
+});
+
+test("site header markup identifies only the current destination", async () => {
+  const headerUrl = pathToFileURL(resolve(root, "components/site-header.js"));
+  const { createSiteHeaderMarkup } = await import(headerUrl.href);
+  const markup = createSiteHeaderMarkup({
+    homeHref: "/",
+    seminarsHref: "/pages/seminars/",
+    current: "seminars",
+  });
+
+  assert.doesNotMatch(markup, /href="\/" aria-current="page"/);
+  assert.match(
+    markup,
+    /href="\/pages\/seminars\/" aria-current="page"/,
+  );
+});
