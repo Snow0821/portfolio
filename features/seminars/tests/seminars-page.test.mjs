@@ -55,6 +55,10 @@ test("a missing download topic logs its error and restores the legacy alert", as
     const button = createDownloadButton("missing", "vertical");
     const requestedIds = [];
     const alerts = [];
+    const attributes = new Map();
+    button.setAttribute = (name, value) => attributes.set(name, value);
+    button.removeAttribute = (name) => attributes.delete(name);
+    button.getAttribute = (name) => attributes.get(name) ?? null;
     documentRef.list.querySelectorAll = () => [button];
     initializeSeminarsPage({
       documentRef,
@@ -67,6 +71,7 @@ test("a missing download topic logs its error and restores the legacy alert", as
     });
     await button.click();
     assert.deepEqual(requestedIds, ["missing"]);
+    assert.equal(button.getAttribute("aria-disabled"), null);
     assert.equal(errors[0][1].message, "Unknown seminar topic: missing");
     assert.deepEqual(alerts, [
       "PDF 생성 중 오류가 발생했습니다. 자료를 연 뒤 브라우저의 인쇄 기능을 이용해 주세요.",

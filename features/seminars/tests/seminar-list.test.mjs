@@ -1,7 +1,35 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createDownloadButton } from "../../../tests/helpers/fake-dom.mjs";
+function createDownloadControl(topicId, mode) {
+  const attributes = new Map();
+  const classes = new Set();
+  const handlers = new Map();
+  const icon = { textContent: "📥" };
+  const control = {
+    dataset: { topicId, mode }, icon, events: [],
+    classList: {
+      add: (name) => classes.add(name), remove: (name) => classes.delete(name),
+      contains: (name) => classes.has(name),
+    },
+    querySelector: () => icon,
+    addEventListener: (name, handler) => handlers.set(name, handler),
+    setAttribute: (name, value) => attributes.set(name, value),
+    removeAttribute: (name) => attributes.delete(name),
+    getAttribute: (name) => attributes.get(name) ?? null,
+  };
+  const dispatch = (type, initial = {}) => {
+    const event = {
+      ...initial, defaultPrevented: false,
+      preventDefault() { this.defaultPrevented = true; },
+    };
+    control.events.push({ type, event });
+    return { event, result: handlers.get(type)?.(event) };
+  };
+  control.click = () => dispatch("click");
+  control.keydown = (key) => dispatch("keydown", { key });
+  return control;
+}
 
 test("renders escaped seminar cards with distinct accessible PDF names", async () => {
   const { renderSeminarList } = await import("../components/seminar-list.js");
@@ -54,24 +82,8 @@ test("renders escaped seminar cards with distinct accessible PDF names", async (
 
 test("leaves native PDF fallback navigation untouched without direct export", async () => {
   const { renderSeminarList } = await import("../components/seminar-list.js");
-  let clickHandler;
-  let defaultPrevented = false;
   let downloadCalls = 0;
-  const classes = new Set();
-  const icon = { textContent: "PDF" };
-  const button = {
-    dataset: { topicId: "sample", mode: "vertical" },
-    disabled: false,
-    classList: {
-      add: (name) => classes.add(name),
-      remove: (name) => classes.delete(name),
-      contains: (name) => classes.has(name),
-    },
-    querySelector: () => icon,
-    addEventListener: (eventName, handler) => {
-      if (eventName === "click") clickHandler = handler;
-    },
-  };
+  const button = createDownloadControl("sample", "vertical");
   const container = { innerHTML: "", querySelectorAll: () => [button] };
 
   renderSeminarList(container, {
@@ -81,44 +93,67 @@ test("leaves native PDF fallback navigation untouched without direct export", as
     onDownload: () => { downloadCalls += 1; },
   });
 
-  const pendingClick = clickHandler({
-    preventDefault: () => { defaultPrevented = true; },
-  });
-  assert.equal(defaultPrevented, false);
+  const click = button.click();
+  assert.equal(click.event.defaultPrevented, false);
   assert.equal(downloadCalls, 0);
-  assert.equal(button.disabled, false);
+  assert.equal(button.getAttribute("aria-disabled"), null);
   assert.equal(button.classList.contains("loading"), false);
-  assert.equal(icon.textContent, "PDF");
-  await pendingClick;
+  assert.equal(button.icon.textContent, "📥");
+  await click.result;
 });
 
-test("keeps a download button pending until its callback settles", async () => {
+test("guards one direct export and exposes its pending ARIA state", async () => {
   const { renderSeminarList } = await import("../components/seminar-list.js");
   let finishDownload;
-  const button = createDownloadButton("sample", "horizontal");
+  let downloadCalls = 0;
+  const pendingDownload = new Promise((resolve) => { finishDownload = resolve; });
+  const button = createDownloadControl("sample", "horizontal");
   const container = { innerHTML: "", querySelectorAll: () => [button] };
 
   renderSeminarList(container, {
     seminars: [],
     paths: {},
     canDownloadDirectly: () => true,
-    onDownload: () => new Promise((resolve) => { finishDownload = resolve; }),
+    onDownload: () => { downloadCalls += 1; return pendingDownload; },
   });
 
-  const download = button.click();
-  assert.equal(button.disabled, true);
+  const firstClick = button.click();
+  const repeatedClick = button.click();
+  assert.equal(firstClick.event.defaultPrevented, true);
+  assert.equal(repeatedClick.event.defaultPrevented, true);
+  assert.equal(downloadCalls, 1);
+  assert.equal(button.getAttribute("aria-disabled"), "true");
   assert.equal(button.classList.contains("loading"), true);
   assert.equal(button.icon.textContent, "⏳");
   finishDownload();
-  await download;
-  assert.equal(button.disabled, false);
+  await Promise.all([firstClick.result, repeatedClick.result]);
+  assert.equal(button.getAttribute("aria-disabled"), null);
   assert.equal(button.classList.contains("loading"), false);
   assert.equal(button.icon.textContent, "📥");
 });
 
+test("activates an ARIA PDF button with Space but leaves Enter native", async () => {
+  const { renderSeminarList } = await import("../components/seminar-list.js");
+  const button = createDownloadControl("sample", "vertical");
+  const container = { innerHTML: "", querySelectorAll: () => [button] };
+  renderSeminarList(container, {
+    seminars: [], paths: {}, canDownloadDirectly: () => false,
+  });
+
+  const enter = button.keydown("Enter");
+  assert.equal(enter.event.defaultPrevented, false);
+  assert.deepEqual(button.events.map(({ type }) => type), ["keydown"]);
+
+  const space = button.keydown(" ");
+  assert.equal(space.event.defaultPrevented, true);
+  assert.deepEqual(button.events.map(({ type }) => type), ["keydown", "keydown", "click"]);
+  assert.equal(button.events[2].event.defaultPrevented, false);
+  await space.result;
+});
+
 test("restores download controls after a failed callback", async () => {
   const { renderSeminarList } = await import("../components/seminar-list.js");
-  const button = createDownloadButton("sample", "vertical");
+  const button = createDownloadControl("sample", "vertical");
   const container = { innerHTML: "", querySelectorAll: () => [button] };
 
   renderSeminarList(container, {
@@ -128,8 +163,8 @@ test("restores download controls after a failed callback", async () => {
     onDownload: async () => { throw new Error("download failed"); },
   });
 
-  await assert.rejects(button.click(), /download failed/);
-  assert.equal(button.disabled, false);
+  await assert.rejects(button.click().result, /download failed/);
+  assert.equal(button.getAttribute("aria-disabled"), null);
   assert.equal(button.classList.contains("loading"), false);
   assert.equal(button.icon.textContent, "📥");
 });

@@ -52,13 +52,16 @@ export function renderSeminarList(
     .join("");
 
   for (const button of container.querySelectorAll(".btn-icon-download")) {
+    let isExporting = false;
     button.addEventListener("click", async (event) => {
       if (!canDownloadDirectly()) return;
       event.preventDefault();
+      if (isExporting) return;
+      isExporting = true;
       const icon = button.querySelector(".icon");
       const originalIcon = icon?.textContent ?? "📥";
 
-      button.disabled = true;
+      button.setAttribute("aria-disabled", "true");
       button.classList.add("loading");
       if (icon) icon.textContent = "⏳";
 
@@ -69,10 +72,16 @@ export function renderSeminarList(
           button,
         });
       } finally {
-        button.disabled = false;
+        isExporting = false;
+        button.removeAttribute("aria-disabled");
         button.classList.remove("loading");
         if (icon) icon.textContent = originalIcon;
       }
+    });
+    button.addEventListener("keydown", (event) => {
+      if (event.key !== " ") return;
+      event.preventDefault();
+      button.click();
     });
   }
 }
