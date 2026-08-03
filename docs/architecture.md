@@ -232,7 +232,7 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 
 - 독립적인 `api/*.mjs` Vercel Function으로 만든다.
 - 브라우저 전용 컴포넌트에 의존하지 않게 하고 응답 계약을 자동 테스트한다.
-- `npm run dev`에서 로컬 HTTP 계약을 검증한 뒤 Preview 환경에서 다시 확인한다.
+- `npm run dev:vercel`에서 로컬 HTTP 계약을 검증한 뒤 Preview 환경에서 다시 확인한다.
 
 ## 8. 변경 검증 기준
 
@@ -251,7 +251,7 @@ api → 서버 전용 유틸리티 또는 외부 서비스
 - PDF용 가로 DOM이 `.slide-container.horizontal` 구조를 가진다.
 - PDF 생성 성공과 실패 후 임시 DOM이 남지 않는다.
 - 모바일 너비에서 사이트 헤더, 세미나 카드, 프레젠테이션 헤더가 사용할 수 있는 상태다.
-- `vercel dev` 환경에서 `/api/health`가 HTTP 200과 JSON `status: "ok"`를 반환한다.
+- `npm run dev:vercel` 환경에서 `/api/health`가 HTTP 200과 JSON `status: "ok"`를 반환한다.
 - 배포 변경은 Vercel Preview에서 정적 페이지와 `/api/health`를 한 번 더 검증한다. Preview 생성에 계정 연결이나 외부 배포 권한이 필요하면 사용자 수행 단계로 명시한다.
 - 실제 수행한 검증 명령과 결과가 `docs/history/2026.md`에 기록된다.
 

@@ -27,7 +27,7 @@
 ## D-005 — Vercel Functions
 
 - 상태: 적용
-- 결정: 서버 기능은 루트 `api/*.mjs` Vercel Functions로 만들고 Vercel CLI는 프로젝트 의존성으로 고정한다.
+- 결정: 서버 기능은 루트 `api/*.mjs` Vercel Functions로 만들고 Vercel CLI는 프로젝트 의존성으로 고정하며 로컬 통합은 `npm run dev:vercel`로 실행한다.
 - 이유: 정적 프런트엔드를 유지하면서 동일 저장소에서 API를 확장하고 로컬 통합 실행을 제공하기 위해서다.
 
 ## D-006 — 클라이언트 PDF와 인쇄 fallback

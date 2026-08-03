@@ -9,7 +9,7 @@ Node.js 환경을 준비한 뒤 프로젝트 의존성을 설치하고 로컬 Ve
 ```bash
 fnm use
 npm install
-npm run dev
+npm run dev:vercel
 ```
 
 정적 페이지만 빠르게 확인할 때는 Python 기본 HTTP 서버도 사용할 수 있습니다.
@@ -78,20 +78,22 @@ npm --version
 
 ```bash
 npm install
-npm run dev
+npm run dev:vercel
 npm test
 ```
 
-- `npm run dev`: 정적 페이지와 Vercel Functions를 로컬에서 함께 실행
+- `npm run dev:vercel`: 정적 페이지와 Vercel Functions를 로컬에서 함께 실행
 - `npm test`: 프로젝트 구조와 동작 검증
 
-Vercel CLI를 처음 사용하는 환경에서는 `npm run dev`가 계정 인증과 프로젝트 연결을 요구할 수 있습니다. 이때 다음 명령으로 사용자 계정에 직접 연결한 뒤 다시 실행합니다.
+Vercel CLI를 처음 사용하는 환경에서는 `npm run dev:vercel`이 계정 인증과 프로젝트 연결을 요구할 수 있습니다. 이때 다음 명령으로 사용자 계정에 직접 연결한 뒤 다시 실행합니다.
 
 ```bash
 npx vercel login
 npx vercel link
-npm run dev
+npm run dev:vercel
 ```
+
+`dev` 스크립트에서 `vercel dev`를 호출하면 Vercel CLI가 재귀 실행으로 판단하므로 로컬 통합 명령은 `dev:vercel` 이름을 유지합니다.
 
 ## 주요 URL
 

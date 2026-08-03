@@ -40,6 +40,18 @@ test("project and package metadata agree on Node.js 24", () => {
   assert.equal(packageJson.scripts.test, "node --test tests/*.mjs");
 });
 
+test("Vercel CLI is not invoked from the reserved package dev script", () => {
+  const packageJson = JSON.parse(
+    readFileSync(resolve(root, "package.json"), "utf8"),
+  );
+
+  assert.equal(packageJson.scripts.dev, undefined);
+  assert.equal(
+    packageJson.scripts["dev:vercel"],
+    "vercel dev --listen 3000",
+  );
+});
+
 test("health function returns a successful JSON response", async () => {
   const healthUrl = pathToFileURL(resolve(root, "api/health.mjs"));
   const { GET } = await import(healthUrl.href);

@@ -35,7 +35,8 @@
 - Node.js 버전은 `.node-version`과 `package.json#engines.node`에서 `24.x`로 유지한다.
 - 의존성 설치는 `npm install`, 구조와 동작 검증은 `npm test`를 사용한다.
 - 정적 화면만 빠르게 확인할 때는 `python3 -m http.server 4173`을 사용할 수 있다.
-- Vercel Functions까지 확인할 때는 `npm run dev`를 사용한다.
+- Vercel Functions까지 확인할 때는 `npm run dev:vercel`을 사용한다.
+- `package.json#scripts.dev`에서 `vercel dev`를 호출하지 않는다. Vercel 통합 실행은 재귀 방지용 `dev:vercel` 스크립트를 유지한다.
 - 새 동작이나 버그 수정은 실패하는 테스트를 먼저 확인한 후 최소 구현으로 통과시킨다.
 - URL 진입점이나 CSS import를 바꾸면 존재하지 않는 로컬 참조와 금지된 레거시 경로가 없는지 자동 검증한다.
 

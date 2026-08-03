@@ -24,4 +24,4 @@
 
 - 완료를 보고하기 전에 `npm test`와 `git diff --check`를 실행한다.
 - 사용자 동작이나 레이아웃을 변경한 경우 로컬 서버에서 관련 화면을 브라우저로 확인한다.
-- Vercel Functions 또는 라우팅을 변경한 경우 `npm run dev`에서 관련 API를 확인한다.
+- Vercel Functions 또는 라우팅을 변경한 경우 `npm run dev:vercel`에서 관련 API를 확인한다.
