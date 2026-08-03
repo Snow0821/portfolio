@@ -11,6 +11,7 @@ import { SECTION_ROLES, validateSeminar } from "../data/validation.js";
 const projectRoot = resolve(import.meta.dirname, "../../..");
 const expectedTopics = {
   "python-intro": {
+    subtitle: "Introduction to Python",
     summary: "프로그래밍 입문자를 위한 파이썬 기초 문법, 핵심 데이터 구조, 변수 및 제어문 개념을 다룹니다.",
     titles: [
       "프로그래밍은 왜 어렵게 느껴질까?",
@@ -57,6 +58,7 @@ print(f"Hello, {user_name}!")`,
     },
   },
   "web-intro": {
+    subtitle: "Introduction to Web Development",
     summary: "인터넷 동작 원리부터 HTTP 프로토콜, 현대 웹 아키텍처, 그리고 HTML/CSS/JavaScript의 기본 요소와 시맨틱 웹 구조를 설명합니다.",
     titles: [
       "연결된 컴퓨터만으로 정보 공유가 될까?",
@@ -139,6 +141,7 @@ test("preserves the required visible structure, slide plan, and legacy source fa
   for (const topic of getSeminarList()) {
     const expected = expectedTopics[topic.id];
     const blocks = topic.sections.flatMap(({ blocks }) => blocks);
+    assert.equal(topic.subtitle, expected.subtitle);
     assert.equal(topic.summary, expected.summary);
     assert.deepEqual(topic.sections.map(({ title }) => title), expected.titles);
     assert.deepEqual(blocks.map(({ id }) => id), expected.blockIds);

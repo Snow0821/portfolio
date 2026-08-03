@@ -9,6 +9,10 @@ test("accepts a complete introductory seminar", () => {
   assert.equal(validateSeminar(validTopic), validTopic);
 });
 
+test("requires a non-empty subtitle", () => {
+  assert.throws(() => validateSeminar(createValidSeminar({ subtitle: "" })), /subtitle/);
+});
+
 test("requires the five semantic roles in order", () => {
   const validTopic = createValidSeminar();
   assert.throws(

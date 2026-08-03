@@ -9,7 +9,7 @@ export function renderContentBlock(block, { view = "reading" } = {}) {
     case "quote": return renderQuote(block);
     case "summary": return renderSummary(block);
     case "image": return renderImage(block);
-    default: throw new TypeError(`吏?먰븯吏 ?딅뒗 ?몃???釉붾줉: ${block.type}`);
+    default: throw new TypeError(`지원하지 않는 세미나 블록: ${block.type}`);
   }
 }
 

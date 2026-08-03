@@ -8,6 +8,8 @@ import { createValidSeminar } from "./fixtures.mjs";
 
 function createTopic() {
   const topic = createValidSeminar();
+  topic.subtitle = "Sample subtitle";
+  topic.sections.forEach((section) => { section.title = `agenda ${section.role}`; });
   topic.sections[0].blocks[0].summary = "shared key point <safe>";
   topic.sections[0].blocks[0].detail = "reading-only detail";
   topic.sections[2].blocks.push(
@@ -31,6 +33,8 @@ test("renders all semantic sections and source details for reading", () => {
   }
   assert.match(container.innerHTML, /shared key point &lt;safe&gt;/);
   assert.match(container.innerHTML, /reading-only detail/);
+  assert.match(container.innerHTML, /Sample subtitle/);
+  assert.match(container.innerHTML, /sample/);
   assert.match(container.innerHTML, /<pre><code class="language-js">a &lt; b/);
   assert.match(container.innerHTML, /src="\/image\.webp" alt="Diagram &lt;alt&gt;"/);
   assert.match(container.innerHTML, /content-block--credit/);
@@ -41,9 +45,11 @@ test("projects only referenced summaries into bounded presentation slides", () =
   const container = createContainer();
   renderPresentationSlides(container, topic, { seminarsHref: "../seminars/?q=<&" });
   assert.match(container.innerHTML, /shared key point &lt;safe&gt;/);
+  assert.match(container.innerHTML, /Sample subtitle/);
   assert.doesNotMatch(container.innerHTML, /reading-only detail/);
   assert.doesNotMatch(container.innerHTML, /sample-code|Image caption/);
-  for (const section of topic.sections) assert.match(container.innerHTML, new RegExp(section.title));
+  const agenda = container.innerHTML.match(/data-layout-id="agenda"[\s\S]*?<\/section>/)?.[0] ?? "";
+  for (const section of topic.sections) assert.match(agenda, new RegExp(section.title));
   assert.equal((container.innerHTML.match(/data-layout-boundary/g) ?? []).length, topic.presentation.slides.length);
   assert.match(container.innerHTML, /href="\.\.\/seminars\/\?q=&lt;&amp;"/);
 });
@@ -88,4 +94,39 @@ test("does not delay complete images and tolerates decode rejection", async () =
     querySelectorAll: (selector) => selector === "img" ? [{ complete: true, decode: () => Promise.reject(new Error("decode")) }] : [],
   };
   assert.deepEqual(await inspectLayoutAfterRender(root, {}), []);
+});
+
+test("settles pending images after an error event", async () => {
+  let settleError;
+  const root = {
+    querySelectorAll: (selector) => selector === "img" ? [{
+      complete: false,
+      addEventListener: (name, listener) => { if (name === "error") settleError = listener; },
+      removeEventListener() {},
+    }] : [],
+  };
+  const inspected = inspectLayoutAfterRender(root, {});
+  await Promise.resolve();
+  assert.equal(typeof settleError, "function");
+  settleError();
+  assert.deepEqual(await inspected, []);
+});
+
+test("waits for complete image decode before requesting a frame", async () => {
+  const events = [];
+  let resolveDecode;
+  const root = {
+    querySelectorAll: (selector) => selector === "img" ? [{
+      complete: true,
+      decode: () => new Promise((resolve) => { resolveDecode = resolve; }),
+    }] : [],
+  };
+  const inspected = inspectLayoutAfterRender(root, {
+    windowRef: { requestAnimationFrame: (callback) => { events.push("frame"); callback(); } },
+  });
+  await Promise.resolve();
+  assert.deepEqual(events, []);
+  resolveDecode();
+  assert.deepEqual(await inspected, []);
+  assert.deepEqual(events, ["frame"]);
 });

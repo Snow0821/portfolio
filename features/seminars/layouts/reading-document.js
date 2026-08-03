@@ -5,6 +5,7 @@ export function renderReadingDocument(container, topicData) {
   if (!container || !topicData) return;
   const prerequisites = topicData.prerequisites.length
     ? topicData.prerequisites.map(escapeHtml).join(", ") : "None";
+  const tags = topicData.tags.map(escapeHtml).join(", ");
   const sections = topicData.sections.map((section) => `
     <section class="reading-section" data-section-role="${escapeAttribute(section.role)}">
       <h2>${escapeHtml(section.title)}</h2>
@@ -14,6 +15,7 @@ export function renderReadingDocument(container, topicData) {
     <article class="reading-document">
       <header class="reading-document__header">
         <p>${escapeHtml(topicData.format)}</p><h1>${escapeHtml(topicData.title)}</h1>
+        <p>${escapeHtml(topicData.subtitle)}</p><p>${tags}</p>
         <p>${escapeHtml(topicData.summary)}</p><p>${escapeHtml(topicData.author)} · ${escapeHtml(topicData.updated)}</p>
       </header>
       <section class="reading-document__metadata">

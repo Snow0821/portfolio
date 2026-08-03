@@ -276,7 +276,7 @@ export const BLOCK_TYPES = Object.freeze([
 ]);
 ```
 
-`validateSeminar` must collect all errors and throw once. Validate non-empty `id`, `format`, `title`, `summary`, `author`, `updated`, `audience`; non-empty `outcomes`; array `tags` and `prerequisites`; exact `introductory-60` format; exact five roles in order; unique non-empty block IDs; supported block types and their required fields; slide types; `stack|split` layouts; unique slide IDs; existing block references; and coverage of all five roles by content slides. Return the original topic when the error list is empty.
+`validateSeminar` must collect all errors and throw once. Validate non-empty `id`, `format`, `title`, `subtitle`, `summary`, `author`, `updated`, `audience`; non-empty `outcomes`; array `tags` and `prerequisites`; exact `introductory-60` format; exact five roles in order; unique non-empty block IDs; supported block types and their required fields; slide types; `stack|split` layouts; unique slide IDs; existing block references; and coverage of all five roles by content slides. Return the original topic when the error list is empty.
 
 Apply these exact block rules: `heading.text` is non-empty and `level` is 2 or 3; `paragraph.summary`, `code.code`, and `quote.text` are non-empty; `list.items` and `summary.items` are non-empty arrays of non-empty strings; optional text fields are strings when present; `image.src` starts with `/features/seminars/assets/<current-topic-id>/`, `alt` is non-empty unless `decorative === true`, decorative images use `alt === ""`, and `owned === false` requires non-empty `credit`.
 
@@ -369,7 +369,7 @@ Expected: FAIL because the feature-local topic and registry modules do not exist
 
 - [ ] **Step 3: Convert the Python topic without copying facts between views**
 
-Keep the existing title, author, summary, tags, examples, and code. Use this exact semantic map:
+Keep the existing title, exact legacy subtitle, author, summary, tags, examples, and code. Use this exact semantic map:
 
 | Role | Visible title | Required block IDs |
 |---|---|---|
@@ -385,7 +385,7 @@ Use nine slides in this order: `cover`, `agenda`, one content slide for `problem
 
 - [ ] **Step 4: Convert the Web topic with the same contract**
 
-Keep the existing title, author, summary, tags, HTML/CSS example, HTTP, client-server, DOM/CSSOM, and browser rendering explanations. Use this semantic map:
+Keep the existing title, exact legacy subtitle, author, summary, tags, HTML/CSS example, HTTP, client-server, DOM/CSSOM, and browser rendering explanations. Use this semantic map:
 
 | Role | Visible title | Required block IDs |
 |---|---|---|

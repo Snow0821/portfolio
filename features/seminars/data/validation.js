@@ -182,7 +182,7 @@ export function validateSeminar(topic) {
   const errors = [];
   const data = topic && typeof topic === "object" ? topic : {};
   if (data !== topic) errors.push("topic must be an object");
-  ["id", "format", "title", "summary", "author", "updated", "audience"].forEach((field) => {
+  ["id", "format", "title", "subtitle", "summary", "author", "updated", "audience"].forEach((field) => {
     requireText(data[field], field, errors);
   });
   validateItems(data.outcomes, "outcomes", errors);

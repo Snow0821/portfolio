@@ -19,6 +19,7 @@ export function createValidSeminar(overrides = {}) {
     id: "sample-intro",
     format: "introductory-60",
     title: "Sample introduction",
+    subtitle: "Sample Introduction",
     summary: "A sample topic for the seminar contract.",
     tags: ["sample"],
     author: "Sample author",

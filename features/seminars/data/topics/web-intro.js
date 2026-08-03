@@ -1,6 +1,7 @@
 export const webIntroData = {
   id: "web-intro",
   format: "introductory-60",
+  subtitle: "Introduction to Web Development",
   title: "웹 개론",
   summary: "인터넷 동작 원리부터 HTTP 프로토콜, 현대 웹 아키텍처, 그리고 HTML/CSS/JavaScript의 기본 요소와 시맨틱 웹 구조를 설명합니다.",
   tags: ["HTML/CSS/JS", "Web Architecture"],

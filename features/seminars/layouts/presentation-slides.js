@@ -13,6 +13,7 @@ function renderSlide(slide, topic, blocks, seminarsHref) {
   if (slide.type === "cover") return `
     <section class="slide-card slide-cover" ${boundary}>
       <p>${escapeHtml(topic.tags.join(" · "))}</p><h1>${escapeHtml(topic.title)}</h1>
+      <p>${escapeHtml(topic.subtitle)}</p>
       <p>${escapeHtml(topic.summary)}</p><p>${escapeHtml(topic.author)} · ${escapeHtml(topic.updated)}</p>
     </section>`;
   if (slide.type === "agenda") return `

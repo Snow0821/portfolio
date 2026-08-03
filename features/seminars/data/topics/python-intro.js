@@ -1,6 +1,7 @@
 export const pythonIntroData = {
   id: "python-intro",
   format: "introductory-60",
+  subtitle: "Introduction to Python",
   title: "파이썬 개론",
   summary: "프로그래밍 입문자를 위한 파이썬 기초 문법, 핵심 데이터 구조, 변수 및 제어문 개념을 다룹니다.",
   tags: ["Python", "기초 입문"],
