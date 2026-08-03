@@ -110,34 +110,26 @@ portfolio/
 │
 ├── components/
 │   ├── section-include.js
-│   ├── site-header.js
-│   ├── seminar-list.js
-│   └── presentation/
-│       ├── README.md
-│       ├── controller.js
-│       ├── document-renderer.js
-│       ├── slide-header.js
-│       └── slide-renderer.js
+│   └── site-header.js
 │
-├── features/
-│   └── seminars/
-│       ├── assets/
-│       │   ├── topics/
-│       │   └── pdf/
-│       │       └── README.md
-│       ├── components/
-│       ├── data/
-│       ├── formats/
-│       ├── layouts/
-│       ├── styles/
-│       └── tests/
+├── features/seminars/
+│   ├── README.md
+│   ├── index.js
+│   ├── seminars-page.js
+│   ├── presentation-page.js
+│   ├── assets/
+│   │   └── pdf/
+│   │       └── README.md
+│   ├── components/
+│   ├── data/
+│   │   └── topics/
+│   ├── formats/
+│   ├── layouts/
+│   ├── styles/
+│   └── tests/
 │
 ├── utils/
 │   └── html.js
-│
-├── data/
-│   ├── seminars.js
-│   └── topics/
 │
 ├── content/
 │   └── home/
@@ -155,13 +147,7 @@ portfolio/
 │   └── components/
 │       ├── site-header.css
 │       ├── content-section.css
-│       ├── entry.css
-│       ├── seminar-card.css
-│       └── presentation/
-│           ├── header.css
-│           ├── layout.css
-│           ├── slide-card.css
-│           └── reading-document.css
+│       └── entry.css
 │
 ├── docs/
 │   ├── architecture.md
@@ -196,15 +182,11 @@ URL로 직접 열리는 화면을 소유한다. 각 페이지의 HTML은 콘텐�
 
 ### `features/`
 
-기능별 데이터, UI, 레이아웃, 에셋, 스타일과 테스트를 한 변경 경계에서 소유한다. `features/seminars/`는 구조화 세미나 원본과 두 HTML 표현을 소유한다. `assets/pdf/`는 수동 검토 후 전달될 네 정적 PDF의 이름과 게시 절차만 예약하며 런타임 생성 서비스는 두지 않는다.
+기능별 데이터, UI, 레이아웃, 에셋, 스타일과 테스트를 한 변경 경계에서 소유한다. `features/seminars/`는 구조화 세미나 원본, 두 HTML 표현과 페이지 초기화 공개 facade를 소유한다. `assets/pdf/`는 수동 검토 후 전달될 네 정적 PDF의 이름과 게시 절차만 예약하며 런타임 생성 서비스는 두지 않는다.
 
 ### `api/`
 
 Vercel Functions 진입점을 소유한다. 각 `.mjs` 파일은 독립적인 HTTP API 계약을 제공하며 브라우저 전용 모듈에 의존하지 않는다. 첫 함수인 `/api/health`는 로컬 `vercel dev`와 Vercel Preview 환경의 통합 상태를 검증하는 smoke endpoint다.
-
-### `data/`
-
-세미나 목록과 주제 콘텐츠를 소유한다. 페이지, 컴포넌트, 서비스 또는 DOM에 의존하지 않는다. 세미나 콘텐츠의 단일 출처다.
 
 ### `content/`
 
@@ -223,12 +205,11 @@ Vercel Functions 진입점을 소유한다. 각 `.mjs` 파일은 독립적인 HT
 허용되는 기본 의존 방향은 다음과 같다.
 
 ```text
-page → component → utility/data
+page → global component
 page → feature public facade → feature component/layout/data
 page.css → shared styles
 component → component
 component → utility
-service → 전달받은 데이터 또는 DOM 렌더러
 api → 서버 전용 유틸리티 또는 외부 서비스
 ```
 

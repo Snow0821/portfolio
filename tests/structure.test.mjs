@@ -39,6 +39,8 @@ test("legacy structure and references are fully removed", () => {
     "tests/verify-structure.ps1",
     "log",
     "docs/plan.md",
+    "docs/seminar-domain-design.md",
+    "docs/seminar-domain-plan.md",
   ];
   const existingLegacyPaths = forbiddenPaths.filter((path) =>
     existsSync(resolve(projectRoot, path)),

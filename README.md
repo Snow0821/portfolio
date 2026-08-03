@@ -105,12 +105,13 @@ npm run dev:vercel
 
 ## 세미나 주제 추가
 
-현재 데이터 형식으로 주제를 추가하는 절차입니다. 세미나 기능 패키지와 `introductory-60` 형식 설계는 승인되었지만 아직 이전되지 않았으므로, 구현이 끝날 때까지 새 구조와 현재 구조를 섞지 않습니다. 승인된 설계와 이전 상태는 `docs/status.md`에서 관리합니다.
+세미나는 `features/seminars/`가 데이터, 두 HTML 표현, 스타일과 테스트를 함께 소유합니다.
 
-1. `data/topics/<topic-id>.js`에 기존 주제와 같은 형태로 발표 슬라이드와 읽기 문서 데이터를 작성합니다.
-2. `data/seminars.js`에서 새 데이터를 import하고 `seminarsDatabase`와 `seminarList`에 등록합니다.
-3. `npm test`를 실행하고 세미나 목록과 두 presentation 모드를 브라우저에서 확인합니다.
-4. 관련 현재 문서와 `docs/history/<year>.md`에 변경 및 검증 결과를 기록합니다.
+1. `features/seminars/data/topics/<topic-id>.js`에 `introductory-60` 공통 의미 블록과 읽기·발표 표현 참조를 작성합니다.
+2. `features/seminars/data/seminars.js`의 registry와 목록에 새 주제를 등록합니다.
+3. `npm test`를 실행하고 세미나 목록, 세로 읽기 문서와 가로 발표 슬라이드를 데스크톱·모바일 브라우저에서 확인합니다.
+4. PDF가 필요하면 먼저 각 HTML 화면을 수동 인쇄해 시각 검토합니다. 실제 정적 파일이 준비되기 전에는 다운로드 링크를 추가하지 않으며, `features/seminars/assets/pdf/README.md`의 게시 게이트를 따릅니다.
+5. 관련 현재 문서와 `docs/history/<year>.md`에 변경 및 검증 결과를 기록합니다.
 
 ## 프로젝트 문서
 
