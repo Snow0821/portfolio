@@ -57,6 +57,7 @@ test("renders a safe header and omits navigation outside presentation mode", asy
   assert.match(readingHeader, /Fallback &lt;title&gt;/);
   assert.match(readingHeader, /horizontal\.html\?topic=fallback/);
   assert.doesNotMatch(readingHeader, /id="next-slide"/);
+  assert.match(createSlideHeaderMarkup(), /← Seminars/);
   assert.match(createSlideHeaderMarkup(), /id="next-slide"/);
 });
 
@@ -70,10 +71,17 @@ test("navigates two presentation slides while ignoring focusable controls", asyn
   assert.equal(documentRef.counter.textContent, "1 / 2");
   assert.equal(documentRef.previous.disabled, true);
   assert.equal(documentRef.next.disabled, false);
+  documentRef.previous.click();
+  assert.equal(documentRef.counter.textContent, "1 / 2");
+  assert.equal(documentRef.slides[0].scrollOptions, null);
   assert.equal(documentRef.keydown("ArrowRight"), true);
   assert.equal(documentRef.counter.textContent, "2 / 2");
   assert.equal(documentRef.previous.disabled, false);
   assert.equal(documentRef.next.disabled, true);
+  const lastScroll = documentRef.slides[1].scrollOptions;
+  documentRef.next.click();
+  assert.equal(documentRef.counter.textContent, "2 / 2");
+  assert.equal(documentRef.slides[1].scrollOptions, lastScroll);
   assert.equal(documentRef.keydown("ArrowLeft"), true);
   assert.equal(documentRef.counter.textContent, "1 / 2");
   for (const control of ["a", "button", "input", "textarea", "select"]) {
@@ -84,6 +92,28 @@ test("navigates two presentation slides while ignoring focusable controls", asyn
   assert.equal(documentRef.counter.textContent, "2 / 2");
   documentRef.previous.click();
   assert.equal(documentRef.counter.textContent, "1 / 2");
+  assert.equal(documentRef.keydown(" "), true);
+  assert.equal(documentRef.counter.textContent, "2 / 2");
+});
+
+test("updates navigation state when the observer sees a different slide", async (t) => {
+  const { PresentationController } = await import(
+    "../components/presentation-controller.js"
+  );
+  const originalObserver = globalThis.IntersectionObserver;
+  let callback;
+  globalThis.IntersectionObserver = class {
+    constructor(next) { callback = next; }
+    observe() {}
+  };
+  t.after(() => { globalThis.IntersectionObserver = originalObserver; });
+  const documentRef = createControllerDocument();
+  new PresentationController(documentRef);
+
+  callback([{ isIntersecting: true, target: documentRef.slides[1] }]);
+  assert.equal(documentRef.counter.textContent, "2 / 2");
+  assert.equal(documentRef.previous.disabled, false);
+  assert.equal(documentRef.next.disabled, true);
 });
 
 test("renders a public-safe error state", async () => {

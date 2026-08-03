@@ -16,7 +16,7 @@ export function createSlideHeaderMarkup({
   return `
     <header class="slide-header">
       <div class="slide-header-left">
-        <a href="${escapeAttribute(backHref)}" class="slide-back-btn" title="세미나 목록으로 이동">‹ Seminars</a>
+        <a href="${escapeAttribute(backHref)}" class="slide-back-btn" title="세미나 목록으로 이동">← Seminars</a>
         <h1 class="slide-title-text">${escapeHtml(title)}</h1>
         ${badge ? `<span class="slide-badge${safeBadgeClass ? ` ${safeBadgeClass}` : ""}">${escapeHtml(badge)}</span>` : ""}
       </div>

@@ -22,9 +22,9 @@ function renderSeminarCard(item, paths) {
       <div class="seminar-actions">
         <div class="action-pair">
           <a href="${escapeAttribute(paths.vertical(item.id))}" target="_blank" rel="noopener noreferrer" class="btn-slide primary">
-            읽기 문서 (세로) ↗
+            읽기용 문서 (세로) ↗
           </a>
-          <button type="button" class="btn-icon-download" data-topic-id="${topicId}" data-mode="vertical" aria-label="${accessibleTitle} 읽기 문서 PDF 다운로드">
+          <button type="button" class="btn-icon-download" data-topic-id="${topicId}" data-mode="vertical" aria-label="${accessibleTitle} 읽기용 문서 PDF 다운로드">
             <span class="icon" aria-hidden="true">📥</span>
           </button>
         </div>
