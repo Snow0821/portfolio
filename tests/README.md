@@ -8,15 +8,17 @@ npm.cmd test
 ```
 
 Root tests own global architecture, home-page behavior, API policy, generic
-local-reference checks, and module policy. Seminar contract, data, layouts,
-UI, pages, PDF lifecycle, and feature-boundary checks belong in
-`features/seminars/tests/`.
+local-reference checks, and module policy. Module policy scans feature modules
+and resolves their imports; only seminar topic content is excluded from line
+limits. Seminar contract, data, layouts, UI, pages, PDF lifecycle, and the
+public-boundary/legacy-ownership checks belong in `features/seminars/tests/`.
 
 ## Root test files
 
 - `foundation.test.mjs`: development environment, Vercel, and the health API.
 - `home.test.mjs`: home foundation and site-header behavior.
-- `module-policy.test.mjs`: file length and local ES-module imports.
+- `module-policy.test.mjs`: file length and local ES-module imports, including
+  feature modules.
 - `structure.test.mjs`: canonical documents, generic legacy paths, and local
   HTML/CSS reference resolution.
 

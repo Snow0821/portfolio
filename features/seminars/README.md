@@ -6,10 +6,10 @@ seminar rules or content.
 
 ## Public boundary
 
-The future public module is `features/seminars/index.js`. It will export only
+The public module is `features/seminars/index.js`. It exports only
 `initializeSeminarsPage` and `initializePresentationPage`. The two existing
-seminar and presentation URL contracts remain unchanged while their page
-entrypoints delegate through that module.
+seminar and presentation URL contracts remain unchanged; their page
+entrypoints import only this facade and never feature internals.
 
 ## Internal roles
 
@@ -23,6 +23,9 @@ entrypoints delegate through that module.
 Feature modules may use `utils/html.js` and global CSS tokens. Global modules
 must not import seminar internals. Promote a feature module to a global module
 only after a real second consumer demonstrates that shared ownership is needed.
+Legacy top-level seminar data, presentation components, PDF services, and
+seminar styles are intentionally absent; add future seminar behavior under
+this feature rather than restoring a top-level owner.
 
 ## Validation lifecycle
 

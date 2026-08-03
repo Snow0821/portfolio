@@ -66,7 +66,7 @@ test("legacy structure and references are fully removed", () => {
     const source = readFileSync(path, "utf8");
     return legacyReferencePatterns
       .filter((pattern) => pattern.test(source))
-      .map((pattern) => `${path.slice(projectRoot.length + 1)}: ${pattern}`);
+      .map((pattern) => `${relative(projectRoot, path).split(sep).join("/")}: ${pattern}`);
   });
 
   assert.deepEqual(staleReferences, []);
@@ -83,7 +83,7 @@ test("local HTML and CSS references resolve to existing files", () => {
         if (/^(?:[a-z]+:|#)/i.test(reference)) continue;
         if (!referenceExists(path, reference)) {
           missingReferences.push(
-            `${path.slice(projectRoot.length + 1)}: ${reference}`,
+            `${relative(projectRoot, path).split(sep).join("/")}: ${reference}`,
           );
         }
       }
@@ -94,7 +94,7 @@ test("local HTML and CSS references resolve to existing files", () => {
       for (const match of source.matchAll(/@import\s+["']([^"']+)["']/g)) {
         if (!referenceExists(path, match[1])) {
           missingReferences.push(
-            `${path.slice(projectRoot.length + 1)}: ${match[1]}`,
+            `${relative(projectRoot, path).split(sep).join("/")}: ${match[1]}`,
           );
         }
       }
