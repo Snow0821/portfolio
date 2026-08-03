@@ -1,6 +1,5 @@
 import { PresentationController } from "./components/presentation-controller.js";
 import { renderSeminarError } from "./components/error-state.js";
-import "./components/slide-header.js";
 import { getSeminar } from "./data/seminars.js";
 import { inspectLayoutAfterRender } from "./layouts/overflow.js";
 import { renderPresentationSlides } from "./layouts/presentation-slides.js";
@@ -38,26 +37,12 @@ function resolveState({ mode, topicId, getTopic }) {
 
 function configurePage(documentRef, state) {
   const horizontal = state.mode === "horizontal";
-  const header = documentRef.getElementById("main-slide-header");
   documentRef.title = `${state.topicData.title} — ${horizontal ? "발표용 슬라이드" : "읽기용 문서"}`;
-  const attributes = {
-    title: state.topicData.title,
-    badge: horizontal ? "발표용 슬라이드" : "읽기용 문서",
-    "badge-class": horizontal ? "" : "doc-badge",
-    "back-href": "../seminars/",
-    "alt-href": `./${horizontal ? "vertical" : "horizontal"}.html?topic=${encodeURIComponent(state.topicId)}`,
-    "alt-text": horizontal ? "읽기용 문서 ↗" : "발표용 슬라이드 ↗",
-    "is-presentation": String(horizontal),
-  };
-  for (const [name, value] of Object.entries(attributes)) {
-    if (value) header?.setAttribute(name, value);
-    else header?.removeAttribute(name);
-  }
 }
 
 function renderPage(container, state, documentRef) {
   if (state.mode === "horizontal") {
-    renderPresentationSlides(container, state.topicData, { seminarsHref: "../seminars/" });
+    renderPresentationSlides(container, state.topicData);
     new PresentationController(documentRef);
   } else renderReadingDocument(container, state.topicData);
 }

@@ -9,12 +9,15 @@ own seminar rules or content.
 The public module is `features/seminars/index.js`. It exports only
 `initializeSeminarsPage` and `initializePresentationPage`. The seminar list,
 horizontal presentation, and vertical reading entrypoints may use this facade
-only; they never import feature internals.
+only; they never import feature internals. Reading and presentation tabs render
+only the requested artifact without visible application navigation.
 
 ## Internal roles
 
 - `data/` contains topic sources, registry accessors, and the validator.
 - `formats/` contains human-facing authoring rules.
+- `discussions/` records shared and topic intent before accepted decisions
+  change format rules or runtime topic data.
 - `components/` and `layouts/` contain feature-local UI and projections.
 - `assets/topics/` holds topic-owned local images under each topic ID.
 - `assets/pdf/README.md` reserves the manual PDF handoff contract; it does not
@@ -27,6 +30,19 @@ must not import seminar internals. Promote a feature module to a global module
 only after a real second consumer demonstrates that shared ownership is needed.
 Legacy top-level seminar data, presentation components, PDF services, and
 seminar styles are intentionally absent.
+
+## Discussion lifecycle
+
+Start unresolved shared questions in `discussions/common.md` and topic-specific
+questions in `discussions/topics/`. Record evidence, impact, alternatives and a
+decision before changing production. Accepted common decisions update
+`formats/`; accepted topic decisions update `data/topics/`, followed by focused
+tests and browser verification of both projections. Discussion prose is never
+imported at runtime.
+
+Non-blocking discoveries and improvements stay archived in the relevant open
+questions until the next task begins and the user reviews them. Security,
+data-loss and blocking regressions remain immediate exceptions.
 
 ## PDF publication boundary
 
@@ -48,8 +64,8 @@ ES module is evaluated. `validateSeminar(topic)` returns the original topic or
 throws one field-aware `TypeError` after collecting all contract errors. Page
 orchestrators catch that failure and render a generic user-facing error state.
 
-Run all repository and feature tests with:
+Run the final repository and feature verifier with:
 
 ```bash
-npm.cmd test
+npm.cmd run verify
 ```

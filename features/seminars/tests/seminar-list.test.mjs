@@ -39,4 +39,8 @@ test("renders escaped seminar cards with only the two HTML-view links", async ()
     /btn-icon-download|PDF 다운로드|data-topic-id|data-mode/,
   );
   assert.equal([...container.innerHTML.matchAll(/<a /g)].length, 4);
+  assert.equal(
+    [...container.innerHTML.matchAll(/target="_blank" rel="noopener noreferrer"/g)].length,
+    4,
+  );
 });

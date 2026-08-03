@@ -17,7 +17,6 @@ const publicFacade = "../../features/seminars/index.js";
 const featureImports = [
   '@import "./seminar-list.css";',
   '@import "./content-block.css";',
-  '@import "./presentation-header.css";',
   '@import "./presentation-layout.css";',
   '@import "./presentation-slide.css";',
   '@import "./reading-document.css";',
@@ -31,6 +30,9 @@ const forbiddenPaths = [
   legacyPath("components", "presentation", "document-renderer.js"),
   legacyPath("components", "presentation", "slide-header.js"),
   legacyPath("components", "presentation", "slide-renderer.js"),
+  "features/seminars/components/slide-header.js",
+  "features/seminars/styles/presentation-header.css",
+  "features/seminars/tests/slide-header.test.mjs",
   legacyPath("data", "seminars.js"),
   legacyPath("data", "topics", "python-intro.js"),
   legacyPath("data", "topics", "web-intro.js"),
@@ -111,7 +113,7 @@ test("page boundary detects bare and dynamic feature deep imports", () => {
   }
 });
 
-test("seminar domain owns no legacy modules or directories", () => {
+test("seminar domain owns no retired modules or directories", () => {
   const existingPaths = forbiddenPaths.filter((path) =>
     existsSync(resolve(projectRoot, path)),
   );
@@ -141,6 +143,19 @@ test("seminar pages own no runtime PDF behavior", () => {
   assert.doesNotMatch(
     runtimeSources,
     /html2pdf|print=true|createPrintFallbackUrl|exportSeminarPdf|pdf-temp-render-zone/,
+  );
+});
+
+test("seminar discussions own shared and topic intent", () => {
+  const required = [
+    "features/seminars/discussions/README.md",
+    "features/seminars/discussions/common.md",
+    "features/seminars/discussions/topics/python-intro.md",
+    "features/seminars/discussions/topics/web-intro.md",
+  ];
+  assert.deepEqual(
+    required.filter((path) => !existsSync(resolve(projectRoot, path))),
+    [],
   );
 });
 

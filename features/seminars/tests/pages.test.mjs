@@ -1,10 +1,23 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import test from "node:test";
 
 import { createPageDocument, createTopic, withConsoleError } from "./page-helpers.mjs";
 import * as publicModule from "../index.js";
 
 const { initializePresentationPage, initializeSeminarsPage } = publicModule;
+const projectRoot = resolve(import.meta.dirname, "../../..");
+
+test("material page bodies contain no application header", () => {
+  for (const path of [
+    "pages/presentation/horizontal.html",
+    "pages/presentation/vertical.html",
+  ]) {
+    const source = readFileSync(resolve(projectRoot, path), "utf8");
+    assert.doesNotMatch(source, /<slide-header\b/);
+  }
+});
 
 test("public facade exposes only the page initializers", () => {
   assert.deepEqual(Object.keys(publicModule).sort(), [
@@ -26,7 +39,7 @@ test("presentation initializer renders a vertical topic and defaults an omitted 
     ok: true, mode: "vertical", topicData: topic, topicId: "python-intro",
   });
   assert.match(documentRef.container.innerHTML, /reading-document/);
-  assert.equal(documentRef.header.getAttribute("alt-text"), "발표용 슬라이드 ↗");
+  assert.equal(documentRef.title, "Sample topic — 읽기용 문서");
 });
 
 test("presentation initializer rejects an explicit unknown topic with generic error markup", async () => {
@@ -82,8 +95,8 @@ test("invalid or omitted presentation mode preserves horizontal behavior", () =>
       inspectLayout: async () => [],
     });
     assert.equal(result.mode, "horizontal");
-    assert.equal(documentRef.header.getAttribute("alt-href"), "./vertical.html?topic=sample");
-    assert.equal(documentRef.header.getAttribute("alt-text"), "읽기용 문서 ↗");
+    assert.equal(documentRef.title, "Sample topic — 발표용 슬라이드");
+    assert.match(documentRef.container.innerHTML, /slide-card/);
   }
 });
 

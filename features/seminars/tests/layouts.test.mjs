@@ -56,7 +56,7 @@ test("renders all semantic sections and source details for reading", () => {
 test("projects only referenced summaries into bounded presentation slides", () => {
   const topic = createTopic();
   const container = createContainer();
-  renderPresentationSlides(container, topic, { seminarsHref: "../seminars/?q=<&" });
+  renderPresentationSlides(container, topic);
   assert.match(container.innerHTML, /shared key point &lt;safe&gt;/);
   assert.match(container.innerHTML, /Sample subtitle/);
   assert.match(container.innerHTML, /class="slide-content-inner"/);
@@ -72,7 +72,7 @@ test("projects only referenced summaries into bounded presentation slides", () =
   const agenda = container.innerHTML.match(/data-layout-id="agenda"[\s\S]*?<\/section>/)?.[0] ?? "";
   for (const section of topic.sections) assert.match(agenda, new RegExp(section.title));
   assert.equal((container.innerHTML.match(/data-layout-boundary/g) ?? []).length, topic.presentation.slides.length);
-  assert.match(container.innerHTML, /href="\.\.\/seminars\/\?q=&lt;&amp;"/);
+  assert.doesNotMatch(container.innerHTML, /Back to seminars|slide-return-link|<a\b/);
 });
 
 test("reading metadata keeps escaped tags, author, and updated values together", () => {

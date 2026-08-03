@@ -27,7 +27,7 @@ test("escapes every text and attribute field in the seven block renderers", () =
   assert.match(markup, /src="&lt;unsafe&gt;&amp;&quot;" alt="&lt;unsafe&gt;&amp;&quot;"/);
 });
 
-test("escapes topic, slide, and link metadata in both projections", () => {
+test("escapes topic and slide metadata in both projections", () => {
   const topic = createValidSeminar({
     title: unsafe, subtitle: unsafe, summary: unsafe, tags: [unsafe], author: unsafe,
     updated: unsafe, audience: unsafe, prerequisites: [unsafe], outcomes: [unsafe],
@@ -41,10 +41,9 @@ test("escapes topic, slide, and link metadata in both projections", () => {
   const reading = { innerHTML: "" };
   const slides = { innerHTML: "" };
   renderReadingDocument(reading, topic);
-  renderPresentationSlides(slides, topic, { seminarsHref: unsafe });
+  renderPresentationSlides(slides, topic);
   assert.doesNotMatch(`${reading.innerHTML}${slides.innerHTML}`, /<unsafe>/);
   assert.match(slides.innerHTML, new RegExp(`data-layout-id="${escapedAttribute}"`));
-  assert.match(slides.innerHTML, new RegExp(`href="${escapedAttribute}"`));
   assert.match(slides.innerHTML, new RegExp(escapedText));
 });
 

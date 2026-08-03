@@ -21,16 +21,15 @@ export function createTopic(id = "sample") {
 }
 
 export function createPageDocument() {
-  const header = createElement();
   const container = createElement();
   const list = createElement();
   const calls = [];
   const elements = new Map([
-    ["main-slide-header", header], ["presentation-container", container],
+    ["presentation-container", container],
     ["seminar-list-container", list],
   ]);
   return {
-    body: { dataset: {} }, title: "", header, container, list, calls,
+    body: { dataset: {} }, title: "", container, list, calls,
     getElementById: (id) => elements.get(id) ?? null,
     querySelector: (selector) => { calls.push(selector); return null; },
     addEventListener() {},

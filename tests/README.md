@@ -1,16 +1,13 @@
 # Tests
 
-The package command runs both repository-wide tests and feature-local seminar
-tests:
-
-```bash
-npm.cmd test
-```
+Fast tests stay grouped by the kind of change so iteration can call the nearest
+group without LLM-driven file selection. The final verifier always runs the
+complete suite and whitespace check.
 
 Root tests own global architecture, home-page behavior, API policy, generic
 local-reference checks, and module policy. Module policy scans feature modules
 and resolves their imports; only seminar topic content is excluded from line
-limits. Seminar contract, data, layouts, UI, pages, PDF lifecycle, and the
+limits. Seminar contract, data, layouts, UI, pages, and the
 public-boundary/legacy-ownership checks belong in `features/seminars/tests/`.
 Those boundary checks cover static, bare side-effect, and dynamic feature
 imports, all of which may use only the public facade.
@@ -31,10 +28,24 @@ checkout is not mistaken for current project source.
 
 ## Commands
 
-Use Node.js 24. On Windows, run:
+Use Node.js 24. Compact dot output is intentional on success; switch to a
+focused raw `node --test` command only to investigate a failure.
+
+| Change | Command |
+| --- | --- |
+| Environment, home or shared foundation | `npm run test:foundation` |
+| Seminar contract, data, layout or escaping | `npm run test:seminars:content` |
+| Seminar list, page or interaction | `npm run test:seminars:ui` |
+| Ownership, imports, references or file limits | `npm run test:structure` |
+| Completed task | `npm run verify` |
+
+On Windows, `npm.cmd` may be used in place of `npm`. During an active task with
+temporary `docs/superpowers` files, run the nearest feature-local structure
+test; the root structure boundary is expected to pass after final cleanup.
+
+Detailed investigation examples:
 
 ```bash
-npm.cmd test
 node --test tests/<domain>.test.mjs
 node --test features/seminars/tests/<domain>.test.mjs
 ```

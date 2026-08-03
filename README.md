@@ -79,11 +79,11 @@ npm --version
 ```bash
 npm install
 npm run dev:vercel
-npm test
+npm run verify
 ```
 
 - `npm run dev:vercel`: 정적 페이지와 Vercel Functions를 로컬에서 함께 실행
-- `npm test`: 프로젝트 구조와 동작 검증
+- `npm run verify`: 전체 자동 테스트와 `git diff --check` 최종 검증
 
 Vercel CLI를 처음 사용하는 환경에서는 `npm run dev:vercel`이 계정 인증과 프로젝트 연결을 요구할 수 있습니다. 이때 다음 명령으로 사용자 계정에 직접 연결한 뒤 다시 실행합니다.
 
@@ -107,11 +107,12 @@ npm run dev:vercel
 
 세미나는 `features/seminars/`가 데이터, 두 HTML 표현, 스타일과 테스트를 함께 소유합니다.
 
-1. `features/seminars/data/topics/<topic-id>.js`에 `introductory-60` 공통 의미 블록과 읽기·발표 표현 참조를 작성합니다.
-2. `features/seminars/data/seminars.js`의 registry와 목록에 새 주제를 등록합니다.
-3. `npm test`를 실행하고 세미나 목록, 세로 읽기 문서와 가로 발표 슬라이드를 데스크톱·모바일 브라우저에서 확인합니다.
-4. PDF가 필요하면 먼저 각 HTML 화면을 수동 인쇄해 시각 검토합니다. 실제 정적 파일이 준비되기 전에는 다운로드 링크를 추가하지 않으며, `features/seminars/assets/pdf/README.md`의 게시 게이트를 따릅니다.
-5. 관련 현재 문서와 `docs/history/<year>.md`에 변경 및 검증 결과를 기록합니다.
+1. `features/seminars/discussions/topics/<topic-id>.md`에서 목적, 대상, 필수·제외 내용과 열린 질문을 논의합니다.
+2. 결정된 공통 규칙은 `features/seminars/formats/`, 결정된 주제 내용은 `features/seminars/data/topics/<topic-id>.js`에 반영합니다.
+3. `features/seminars/data/seminars.js`의 registry와 목록에 새 주제를 등록합니다.
+4. 가까운 테스트 그룹을 실행한 뒤 세미나 목록과 네비게이션 없는 세로 읽기·가로 발표 자료를 데스크톱·모바일 브라우저에서 확인하고 `npm run verify`로 마칩니다.
+5. PDF가 필요하면 먼저 각 HTML 화면을 수동 인쇄해 시각 검토합니다. 실제 정적 파일이 준비되기 전에는 다운로드 링크를 추가하지 않으며, `features/seminars/assets/pdf/README.md`의 게시 게이트를 따릅니다.
+6. 관련 현재 문서와 `docs/history/<year>.md`에 변경 및 검증 결과를 기록합니다.
 
 ## 프로젝트 문서
 

@@ -3,13 +3,6 @@
     width: 100%;
   }
 
-  slide-header,
-  .slide-header,
-  .slide-nav-btns,
-  .slide-action-btn {
-    display: none !important;
-  }
-
   .slide-wrapper {
     width: 100% !important;
     margin: 0 !important;

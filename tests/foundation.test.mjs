@@ -66,9 +66,20 @@ test("project and package metadata agree on Node.js 24", () => {
 
   assert.equal(version, "24");
   assert.equal(packageJson.engines.node, "24.x");
-  assert.equal(
-    packageJson.scripts.test,
-    "node --test tests/*.test.mjs features/seminars/tests/*.test.mjs",
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(packageJson.scripts).filter(
+        ([name]) => name === "test" || name === "verify" || name.startsWith("test:"),
+      ),
+    ),
+    {
+      test: "node --test --test-reporter=dot tests/*.test.mjs features/seminars/tests/*.test.mjs",
+      "test:foundation": "node --test --test-reporter=dot tests/foundation.test.mjs tests/home.test.mjs",
+      "test:seminars:content": "node --test --test-reporter=dot features/seminars/tests/contract.test.mjs features/seminars/tests/data.test.mjs features/seminars/tests/layouts.test.mjs features/seminars/tests/rendering-escaping.test.mjs",
+      "test:seminars:ui": "node --test --test-reporter=dot features/seminars/tests/pages.test.mjs features/seminars/tests/presentation-components.test.mjs features/seminars/tests/seminar-list.test.mjs features/seminars/tests/seminars-page.test.mjs",
+      "test:structure": "node --test --test-reporter=dot tests/module-policy.test.mjs tests/structure.test.mjs features/seminars/tests/structure.test.mjs",
+      verify: "npm test && git diff --check",
+    },
   );
 });
 
