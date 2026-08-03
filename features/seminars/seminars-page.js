@@ -28,6 +28,7 @@ export function initializeSeminarsPage({
         horizontalPrint: (topicId) => createPrintFallbackUrl("horizontal", topicId),
       },
       canDownloadDirectly: () => Boolean(windowRef.html2pdf),
+      navigateFallback: (href) => windowRef.location.assign(href),
       onDownload: createDownloadHandler({ documentRef, windowRef, getTopic }),
     });
     return { ok: true };

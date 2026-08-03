@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 function createDownloadControl(topicId, mode) {
-  const attributes = new Map([["target", "_blank"]]);
+  const href = `../presentation/${mode}.html?topic=${topicId}&print=true`;
+  const attributes = new Map([["href", href], ["target", "_blank"]]);
   const classes = new Set();
   const handlers = new Map();
   const icon = { textContent: "📥" };
@@ -136,10 +137,12 @@ test("guards one direct export and exposes its pending ARIA state", async () => 
 
 test("activates an ARIA PDF button with Space but leaves Enter native", async () => {
   const { renderSeminarList } = await import("../components/seminar-list.js");
+  const navigations = [];
   const button = createDownloadControl("sample", "vertical");
   const container = { innerHTML: "", querySelectorAll: () => [button] };
   renderSeminarList(container, {
     seminars: [], paths: {}, canDownloadDirectly: () => false,
+    navigateFallback: (href) => navigations.push(href),
   });
 
   const enter = button.keydown("Enter");
@@ -148,9 +151,8 @@ test("activates an ARIA PDF button with Space but leaves Enter native", async ()
 
   const space = button.keydown(" ");
   assert.equal(space.event.defaultPrevented, true);
-  assert.deepEqual(button.events.map(({ type }) => type), ["keydown", "keydown", "click"]);
-  assert.equal(button.events[2].event.defaultPrevented, false);
-  assert.equal(button.events[2].target, "_self");
+  assert.deepEqual(button.events.map(({ type }) => type), ["keydown", "keydown"]);
+  assert.deepEqual(navigations, ["../presentation/vertical.html?topic=sample&print=true"]);
   assert.equal(button.getAttribute("target"), "_blank");
   await space.result;
 });

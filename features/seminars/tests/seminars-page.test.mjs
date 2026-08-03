@@ -20,18 +20,34 @@ test("presentation and print paths encode the requested topic", () => {
   );
 });
 
-test("renders and preserves the native vertical print fallback without the CDN", async () => {
+test("routes no-CDN Space fallback through same-tab location navigation", async () => {
   const documentRef = createPageDocument();
-  const button = createDownloadButton("sample", "vertical");
-  const opened = [];
+  const button = createDownloadButton("sample", "horizontal");
+  const assigned = [];
   const requestedIds = [];
+  const attributes = new Map([
+    ["href", "../presentation/horizontal.html?topic=sample&print=true"],
+    ["target", "_blank"],
+  ]);
+  let keydownHandler;
+  let clickCalls = 0;
+  const addEventListener = button.addEventListener;
+  const click = button.click;
+  button.addEventListener = (name, handler) => {
+    if (name === "keydown") keydownHandler = handler;
+    else addEventListener(name, handler);
+  };
+  button.click = () => { clickCalls += 1; return click(); };
+  button.setAttribute = (name, value) => attributes.set(name, value);
+  button.removeAttribute = (name) => attributes.delete(name);
+  button.getAttribute = (name) => attributes.get(name) ?? null;
   documentRef.list.querySelectorAll = () => [button];
 
   initializeSeminarsPage({
     documentRef,
     windowRef: {
       html2pdf: undefined,
-      open: (...args) => opened.push(args),
+      location: { assign: (href) => assigned.push(href) },
       alert: () => {},
     },
     getTopics: () => [createTopic()],
@@ -39,14 +55,18 @@ test("renders and preserves the native vertical print fallback without the CDN",
   });
 
   await button.click();
+  clickCalls = 0;
+  let spacePrevented = false;
+  keydownHandler({ key: " ", preventDefault: () => { spacePrevented = true; } });
 
   assert.match(
     documentRef.list.innerHTML,
-    /href="\.\.\/presentation\/vertical\.html\?topic=sample&amp;print=true" target="_blank" rel="noopener noreferrer" role="button"/,
+    /href="\.\.\/presentation\/horizontal\.html\?topic=sample&amp;print=true" target="_blank" rel="noopener noreferrer" role="button"/,
   );
+  assert.equal(spacePrevented, true);
+  assert.deepEqual(assigned, ["../presentation/horizontal.html?topic=sample&print=true"]);
+  assert.equal(clickCalls, 0);
   assert.deepEqual(requestedIds, []);
-  assert.deepEqual(opened, []);
-  assert.equal(button.disabled, false);
 });
 
 test("a missing download topic logs its error and restores the legacy alert", async () => {

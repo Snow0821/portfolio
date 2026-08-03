@@ -33,8 +33,9 @@ accessible button names. They retain browser navigation when `html2pdf` is
 unavailable; the list intercepts the click for loading state and direct export
 only when its synchronous availability predicate succeeds. Direct export uses
 a per-control in-flight guard and `aria-disabled`. Mouse and Enter retain the
-anchor's native new-tab fallback; Space uses same-tab fallback navigation when
-the CDN is absent and remains intercepted for direct export when it is present.
+anchor's native new-tab fallback; Space uses the page's injected same-tab
+location navigation when the CDN is absent and remains intercepted for direct
+export when it is present.
 
 ## Validation lifecycle
 

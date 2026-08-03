@@ -43,7 +43,10 @@ function renderSeminarCard(item, paths) {
 
 export function renderSeminarList(
   container,
-  { seminars, paths, canDownloadDirectly = () => false, onDownload = () => {} },
+  {
+    seminars, paths, canDownloadDirectly = () => false,
+    navigateFallback = () => {}, onDownload = () => {},
+  },
 ) {
   if (!container) return;
 
@@ -85,14 +88,7 @@ export function renderSeminarList(
         button.click();
         return;
       }
-      const originalTarget = button.getAttribute("target");
-      button.setAttribute("target", "_self");
-      try {
-        button.click();
-      } finally {
-        if (originalTarget === null) button.removeAttribute("target");
-        else button.setAttribute("target", originalTarget);
-      }
+      navigateFallback(button.getAttribute("href"));
     });
   }
 }
