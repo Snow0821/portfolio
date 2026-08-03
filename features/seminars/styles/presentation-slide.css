@@ -119,25 +119,9 @@
   line-height: 1.5;
 }
 
-.slide-card-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-line);
-  color: var(--color-muted);
-  font-size: 0.8rem;
-}
-
 @media (max-width: 768px) {
   .slide-blocks--split {
     grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 560px) {
-  .slide-card-footer {
     gap: 1rem;
   }
 }

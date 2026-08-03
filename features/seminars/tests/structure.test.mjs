@@ -36,6 +36,7 @@ test("seminar pages load global, feature, and page styles in cascade order", () 
     for (const statement of styles) {
       const index = source.indexOf(statement);
       assert.ok(index > previousIndex, `${page}: ${statement} order`);
+      assert.equal(source.split(statement).length - 1, 1, `${page}: ${statement} count`);
       previousIndex = index;
     }
   }
@@ -60,13 +61,26 @@ test("global styles exclude seminar ownership and feature styles define its casc
   assert.doesNotMatch(mainCss, /seminar-card|components\/presentation/);
 
   const globalPrint = readProjectFile("styles/print.css");
-  assert.match(globalPrint, /body\s*\{[\s\S]*?width: 100% !important;/);
+  for (const declaration of [
+    "width: 100% !important;",
+    "margin: 0 !important;",
+    "padding: 0 !important;",
+    "background-color: #ffffff !important;",
+  ]) assert.match(globalPrint, new RegExp(`body\\s*\\{[\\s\\S]*?${declaration}`));
 
   const featureCss = readProjectFile("features/seminars/styles/index.css");
+  assert.deepEqual(
+    [...featureCss.matchAll(/@import "[^"\n]+";/g)].map((match) => match[0]),
+    featureImports,
+  );
   let previousIndex = -1;
   for (const statement of featureImports) {
     const index = featureCss.indexOf(statement);
     assert.ok(index > previousIndex, `${statement} import order`);
     previousIndex = index;
   }
+  assert.doesNotMatch(
+    readProjectFile("features/seminars/styles/presentation-slide.css"),
+    /\.slide-card-footer/,
+  );
 });

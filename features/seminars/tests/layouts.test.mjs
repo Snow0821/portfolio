@@ -17,6 +17,8 @@ function createTopic() {
     { id: "sample-image", type: "image", src: "/image.webp", alt: "Diagram <alt>", caption: "Image caption", credit: "Photo credit" },
   );
   topic.presentation.slides[2].blockIds = ["sample-problem"];
+  topic.presentation.slides[4].blockIds = ["sample-code"];
+  topic.presentation.slides[4].layout = "split";
   return topic;
 }
 
@@ -45,6 +47,10 @@ test("renders all semantic sections and source details for reading", () => {
   assert.match(container.innerHTML, /src="\/image\.webp" alt="Diagram &lt;alt&gt;"/);
   assert.match(container.innerHTML, /content-block--credit/);
   assert.match(container.innerHTML, /content-block--summary callout-box/);
+  assert.match(
+    container.innerHTML,
+    /class="content-block content-block--code slide-code-block reading-doc-code"/,
+  );
 });
 
 test("projects only referenced summaries into bounded presentation slides", () => {
@@ -56,12 +62,32 @@ test("projects only referenced summaries into bounded presentation slides", () =
   assert.match(container.innerHTML, /class="slide-content-inner"/);
   assert.match(container.innerHTML, /class="slide-card-header"/);
   assert.match(container.innerHTML, /class="slide-card-body"/);
+  assert.match(container.innerHTML, /class="slide-blocks slide-blocks--split"/);
+  assert.match(
+    container.innerHTML,
+    /class="content-block content-block--code slide-code-block"/,
+  );
   assert.doesNotMatch(container.innerHTML, /reading-only detail/);
   assert.doesNotMatch(container.innerHTML, /sample-code|Image caption/);
   const agenda = container.innerHTML.match(/data-layout-id="agenda"[\s\S]*?<\/section>/)?.[0] ?? "";
   for (const section of topic.sections) assert.match(agenda, new RegExp(section.title));
   assert.equal((container.innerHTML.match(/data-layout-boundary/g) ?? []).length, topic.presentation.slides.length);
   assert.match(container.innerHTML, /href="\.\.\/seminars\/\?q=&lt;&amp;"/);
+});
+
+test("reading metadata keeps escaped tags, author, and updated values together", () => {
+  const topic = createTopic();
+  topic.tags = ["Tag <unsafe>"];
+  topic.author = "Author <unsafe>";
+  topic.updated = "2026 <unsafe>";
+  const container = createContainer();
+  renderReadingDocument(container, topic);
+  assert.match(
+    container.innerHTML,
+    /<div class="reading-doc-meta">[\s\S]*Tag &lt;unsafe&gt;[\s\S]*Author &lt;unsafe&gt;[\s\S]*2026 &lt;unsafe&gt;[\s\S]*<\/div>/,
+  );
+  assert.match(container.innerHTML, /class="reading-doc-lead">Sample subtitle/);
+  assert.match(container.innerHTML, /A sample topic for the seminar contract\./);
 });
 
 test("reports only boundaries exceeding the one-pixel overflow tolerance", () => {

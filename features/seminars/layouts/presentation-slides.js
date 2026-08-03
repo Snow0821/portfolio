@@ -23,7 +23,13 @@ function renderSlide(slide, topic, blocks, seminarsHref) {
       <div class="slide-card-body"><ol>${topic.sections.map((section) => `<li>${escapeHtml(section.title)}</li>`).join("")}</ol></div>
     </div></section>`;
   if (slide.type === "content") {
-    const renderedBlocks = slide.blockIds.map((id) => renderContentBlock(blocks.get(id), { view: "presentation" })).join("");
+    const renderedBlocks = slide.blockIds.map((id) => {
+      const block = blocks.get(id);
+      return renderContentBlock(block, {
+        view: "presentation",
+        className: block.type === "code" ? "slide-code-block" : "",
+      });
+    }).join("");
     return `
       <section class="slide-card" ${boundary} data-section-role="${escapeAttribute(slide.sectionRole)}">
         <div class="slide-content-inner">

@@ -1,20 +1,24 @@
 import { escapeAttribute, escapeHtml } from "../../../utils/html.js";
 
 export function renderContentBlock(block, { view = "reading", className = "" } = {}) {
+  let markup;
   switch (block.type) {
-    case "heading": return renderHeading(block);
-    case "paragraph": return renderParagraph(block, view);
-    case "list": return renderList(block);
-    case "code": return renderCode(block);
-    case "quote": return renderQuote(block);
-    case "summary": return renderSummary(block, className);
-    case "image": return renderImage(block);
+    case "heading": markup = renderHeading(block); break;
+    case "paragraph": markup = renderParagraph(block, view); break;
+    case "list": markup = renderList(block); break;
+    case "code": markup = renderCode(block); break;
+    case "quote": markup = renderQuote(block); break;
+    case "summary": markup = renderSummary(block); break;
+    case "image": markup = renderImage(block); break;
     default: throw new TypeError(`지원하지 않는 세미나 블록: ${block.type}`);
   }
+  return className
+    ? markup.replace(`content-block--${block.type}`, `content-block--${block.type} ${escapeAttribute(className)}`)
+    : markup;
 }
 
-function root(type, content, className = "") {
-  return `<div class="content-block content-block--${type}${className ? ` ${className}` : ""}">${content}</div>`;
+function root(type, content) {
+  return `<div class="content-block content-block--${type}">${content}</div>`;
 }
 
 function renderHeading(block) {
@@ -44,8 +48,8 @@ function renderQuote(block) {
   return root("quote", `<blockquote><p>${escapeHtml(block.text)}</p>${attribution}</blockquote>`);
 }
 
-function renderSummary(block, className) {
-  return root("summary", `<ul>${block.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`, className);
+function renderSummary(block) {
+  return root("summary", `<ul>${block.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`);
 }
 
 function renderImage(block) {
