@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세미나 — 읽기용 문서</title>
+    <link rel="stylesheet" href="../styles/style.css">
+  </head>
+  <body>
+    <!-- Top Control Header Component -->
+    <slide-header id="main-slide-header"></slide-header>
+
+    <!-- Vertical Reading Document Main View Container -->
+    <main class="slide-wrapper">
+      <div id="document-container">
+        <!-- Rendered dynamically by document-renderer.js template engine -->
+      </div>
+    </main>
+
+    <script type="module" src="../components/slide-header.js"></script>
+    <script type="module">
+      import { seminarsDatabase } from "../data/seminars.js";
+      import { renderReadingDocument } from "../components/level4-presentation/document-renderer.js";
+      import { PresentationController } from "../components/level4-presentation/presentation-controller.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const topicId = params.get("topic") || "python-intro";
+        const shouldPrint = params.get("print") === "true";
+        const topicData = seminarsDatabase[topicId] || seminarsDatabase["python-intro"];
+
+        // Update Document Title
+        document.title = `${topicData.title} — 읽기용 문서`;
+
+        // Update Header Component Attributes
+        const headerEl = document.getElementById("main-slide-header");
+        if (headerEl) {
+          headerEl.setAttribute("title", topicData.title);
+          headerEl.setAttribute("badge", "읽기용 문서");
+          headerEl.setAttribute("badge-class", "doc-badge");
+          headerEl.setAttribute("alt-href", `./viewer-horizontal.html?topic=${topicId}`);
+          headerEl.setAttribute("alt-text", "발표용 슬라이드 ↗");
+          headerEl.setAttribute("is-presentation", "false");
+        }
+
+        // Render Document Template
+        const container = document.getElementById("document-container");
+        renderReadingDocument(container, topicData);
+
+        // Initialize Controller
+        new PresentationController();
+
+        // Auto trigger PDF print dialog if requested from Seminar page PDF icon
+        if (shouldPrint) {
+          setTimeout(() => {
+            window.print();
+          }, 350);
+        }
+      });
+    </script>
+  </body>
+</html>

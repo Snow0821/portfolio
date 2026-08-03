@@ -1,0 +1,56 @@
+/* Level 4: Presentation Print & PDF Export Rules */
+@media print {
+  .slide-header,
+  .slide-nav-btns,
+  .slide-action-btn,
+  header {
+    display: none !important;
+  }
+
+  body, .slide-wrapper {
+    background-color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Presentation Slide PDF Page Breaks */
+  .slide-container.horizontal {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  .slide-container.horizontal .slide-card {
+    height: 98vh !important;
+    width: 100vw !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 1rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .slide-container.horizontal .slide-content-inner {
+    box-shadow: none !important;
+    border: 1px solid #d9d9d3 !important;
+    width: 95% !important;
+    max-width: 900px !important;
+  }
+
+  /* Reading Document Print Layout */
+  .reading-doc-container {
+    max-width: 100% !important;
+    padding: 1cm !important;
+  }
+
+  .reading-doc-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
