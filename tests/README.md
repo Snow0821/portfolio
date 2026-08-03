@@ -25,7 +25,9 @@ imports, all of which may use only the public facade.
   HTML/CSS reference resolution.
 
 Shared fake DOM and file-search helpers are under `tests/helpers/`; helpers do
-not run as standalone tests.
+not run as standalone tests. Repository-wide collection skips `.git`,
+`.worktrees`, and `node_modules` so an isolated worktree nested under the main
+checkout is not mistaken for current project source.
 
 ## Commands
 

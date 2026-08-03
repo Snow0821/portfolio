@@ -1,10 +1,36 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import {
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { relative, resolve } from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 
-import { projectRoot } from "./helpers/files.mjs";
+import { collectFiles, projectRoot } from "./helpers/files.mjs";
+
+test("repository file collection ignores nested worktrees", () => {
+  const fixtureRoot = mkdtempSync(resolve(tmpdir(), "portfolio-files-"));
+
+  try {
+    mkdirSync(resolve(fixtureRoot, ".worktrees", "task"), { recursive: true });
+    writeFileSync(resolve(fixtureRoot, ".worktrees", "task", "ignored.md"), "old");
+    writeFileSync(resolve(fixtureRoot, "kept.md"), "current");
+
+    const collected = collectFiles(fixtureRoot).map((path) =>
+      relative(fixtureRoot, path),
+    );
+
+    assert.deepEqual(collected, ["kept.md"]);
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+});
 
 test("required development and documentation files exist", () => {
   const requiredFiles = [

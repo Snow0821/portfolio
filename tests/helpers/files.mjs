@@ -9,7 +9,7 @@ export const projectRoot = resolve(
 
 export function collectFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    if ([".git", "node_modules"].includes(entry.name)) return [];
+    if ([".git", ".worktrees", "node_modules"].includes(entry.name)) return [];
     const path = resolve(directory, entry.name);
     return entry.isDirectory() ? collectFiles(path) : [path];
   });
