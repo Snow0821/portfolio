@@ -59,11 +59,24 @@ export function renderSeminarList(
   for (const button of container.querySelectorAll(".btn-icon-download")) {
     button.addEventListener("click", async (event) => {
       event.preventDefault();
-      await onDownload({
-        topicId: button.dataset.topicId,
-        mode: button.dataset.mode,
-        button,
-      });
+      const icon = button.querySelector(".icon");
+      const originalIcon = icon?.textContent ?? "📥";
+
+      button.disabled = true;
+      button.classList.add("loading");
+      if (icon) icon.textContent = "⏳";
+
+      try {
+        await onDownload({
+          topicId: button.dataset.topicId,
+          mode: button.dataset.mode,
+          button,
+        });
+      } finally {
+        button.disabled = false;
+        button.classList.remove("loading");
+        if (icon) icon.textContent = originalIcon;
+      }
     });
   }
 }

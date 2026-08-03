@@ -150,13 +150,48 @@ test("seminar page package and accessible list component are available", async (
   assert.equal(callbacks.length, 1);
   assert.equal(callbacks[0].topicId, "sample");
   assert.equal(callbacks[0].mode, "vertical");
+
+  let finishDownload;
+  const pendingButton = createDownloadButton("sample", "horizontal");
+  const pendingContainer = {
+    innerHTML: "",
+    querySelectorAll: () => [pendingButton],
+  };
+  renderSeminarList(pendingContainer, {
+    seminars: [],
+    paths: {},
+    onDownload: () =>
+      new Promise((resolveDownload) => {
+        finishDownload = resolveDownload;
+      }),
+  });
+
+  const pendingClick = pendingButton.click();
+  assert.equal(pendingButton.disabled, true);
+  assert.equal(pendingButton.classList.contains("loading"), true);
+  assert.equal(pendingButton.icon.textContent, "⏳");
+  finishDownload();
+  await pendingClick;
+  assert.equal(pendingButton.disabled, false);
+  assert.equal(pendingButton.classList.contains("loading"), false);
+  assert.equal(pendingButton.icon.textContent, "📥");
 });
 
 function createDownloadButton(topicId, mode) {
   let clickHandler;
+  const classes = new Set();
+  const icon = { textContent: "📥" };
 
   return {
     dataset: { topicId, mode },
+    disabled: false,
+    icon,
+    classList: {
+      add: (name) => classes.add(name),
+      remove: (name) => classes.delete(name),
+      contains: (name) => classes.has(name),
+    },
+    querySelector: (selector) => (selector === ".icon" ? icon : null),
     addEventListener: (eventName, handler) => {
       if (eventName === "click") clickHandler = handler;
     },
@@ -233,4 +268,135 @@ test("presentation package resolves modes, topics, and reactive header output", 
   assert.match(readingHeader, /Fallback/);
   assert.match(readingHeader, /horizontal\.html\?topic=fallback/);
   assert.doesNotMatch(readingHeader, /id="next-slide"/);
+});
+
+test("PDF service creates the real horizontal structure and always cleans up", async () => {
+  const servicePath = resolve(root, "services/pdf-exporter.js");
+  assert.equal(existsSync(servicePath), true);
+
+  const serviceUrl = pathToFileURL(servicePath);
+  const { createPdfRenderZone, exportSeminarPdf } = await import(
+    serviceUrl.href
+  );
+  const documentRef = createFakeDocument();
+  const renderContent = (target) => {
+    for (let index = 0; index < 5; index += 1) {
+      const card = documentRef.createElement("section");
+      card.className = "slide-card";
+      target.appendChild(card);
+    }
+  };
+
+  const renderZone = createPdfRenderZone({
+    documentRef,
+    topicData: { id: "sample", title: "샘플 세미나" },
+    mode: "horizontal",
+    renderContent,
+  });
+  const horizontalTarget = renderZone.querySelector(
+    ".slide-container.horizontal",
+  );
+
+  assert.ok(horizontalTarget);
+  assert.equal(horizontalTarget.querySelectorAll(".slide-card").length, 5);
+  assert.equal(
+    horizontalTarget.querySelectorAll(".slide-card")[0].style.breakAfter,
+    "page",
+  );
+
+  await assert.rejects(
+    exportSeminarPdf({
+      documentRef,
+      topicData: { id: "sample", title: "샘플 세미나" },
+      mode: "horizontal",
+      renderContent,
+      html2pdf: () => {
+        throw new Error("export failed");
+      },
+      waitForLayout: async () => {},
+    }),
+    /export failed/,
+  );
+  assert.equal(documentRef.body.children.length, 0);
+
+  let fallbackCalled = false;
+  await exportSeminarPdf({
+    documentRef,
+    topicData: { id: "sample", title: "샘플 세미나" },
+    mode: "vertical",
+    renderContent: () => {},
+    html2pdf: undefined,
+    onFallback: () => {
+      fallbackCalled = true;
+    },
+    waitForLayout: async () => {},
+  });
+  assert.equal(fallbackCalled, true);
+  assert.equal(documentRef.body.children.length, 0);
+});
+
+function createFakeDocument() {
+  class FakeElement {
+    constructor(tagName) {
+      this.tagName = tagName.toUpperCase();
+      this.children = [];
+      this.className = "";
+      this.id = "";
+      this.parentNode = null;
+      this.style = {};
+    }
+
+    appendChild(child) {
+      child.parentNode = this;
+      this.children.push(child);
+      return child;
+    }
+
+    removeChild(child) {
+      this.children = this.children.filter((candidate) => candidate !== child);
+      child.parentNode = null;
+    }
+
+    remove() {
+      this.parentNode?.removeChild(this);
+    }
+
+    querySelector(selector) {
+      return this.querySelectorAll(selector)[0] ?? null;
+    }
+
+    querySelectorAll(selector) {
+      const requiredClasses = selector
+        .split(".")
+        .filter(Boolean)
+        .map((name) => name.trim());
+      const matches = [];
+      const visit = (element) => {
+        const classes = element.className.split(/\s+/).filter(Boolean);
+        if (requiredClasses.every((name) => classes.includes(name))) {
+          matches.push(element);
+        }
+        element.children.forEach(visit);
+      };
+      this.children.forEach(visit);
+      return matches;
+    }
+  }
+
+  return {
+    body: new FakeElement("body"),
+    createElement: (tagName) => new FakeElement(tagName),
+  };
+}
+
+test("seminar print fallback URL preserves mode and topic", async () => {
+  const seminarsPageUrl = pathToFileURL(
+    resolve(root, "pages/seminars/page.js"),
+  );
+  const { createPrintFallbackUrl } = await import(seminarsPageUrl.href);
+
+  assert.equal(
+    createPrintFallbackUrl("horizontal", "web-intro"),
+    "../presentation/horizontal.html?topic=web-intro&print=true",
+  );
 });
