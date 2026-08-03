@@ -37,7 +37,7 @@ profile = {
     "active": True
 }
 
-print(f"Hello, \${name}!")`,
+print(f"Hello, {name}!")`,
       "python-method-reading-code": `# 파이썬 기본 데이터 타입 실습 예제
 user_name = "Snow Choi"       # str
 user_age = 28                 # int
@@ -53,7 +53,7 @@ profile = {
     "role": "Lecturer & Researcher"
 }
 
-print(f"Hello, \${user_name}!")`,
+print(f"Hello, {user_name}!")`,
     },
   },
   "web-intro": {

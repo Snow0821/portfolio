@@ -69,7 +69,7 @@ profile = {
     "active": True
 }
 
-print(f"Hello, \${name}!")`,
+print(f"Hello, {name}!")`,
         },
         {
           id: "python-method-control",
@@ -97,7 +97,7 @@ profile = {
     "role": "Lecturer & Researcher"
 }
 
-print(f"Hello, \${user_name}!")`,
+print(f"Hello, {user_name}!")`,
         },
       ],
     },
