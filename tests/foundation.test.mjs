@@ -63,3 +63,17 @@ test("health function returns a successful JSON response", async () => {
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { status: "ok" });
 });
+
+test("shared HTML utilities separate text and attribute escaping", async () => {
+  const utilityUrl = pathToFileURL(resolve(projectRoot, "utils/html.js"));
+  const { escapeAttribute, escapeHtml } = await import(utilityUrl.href);
+
+  assert.equal(
+    escapeHtml('<Snow & "Web">'),
+    '&lt;Snow &amp; "Web"&gt;',
+  );
+  assert.equal(
+    escapeAttribute('<Snow & "Web">'),
+    "&lt;Snow &amp; &quot;Web&quot;&gt;",
+  );
+});

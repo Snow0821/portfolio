@@ -44,4 +44,14 @@ test("site header markup identifies only the current destination", async () => {
 
   assert.doesNotMatch(markup, /href="\/" aria-current="page"/);
   assert.match(markup, /href="\/pages\/seminars\/" aria-current="page"/);
+
+  const escapedMarkup = createSiteHeaderMarkup({
+    homeHref: '/?label="home"&mode=<safe>',
+    seminarsHref: "/pages/seminars/",
+    current: "about",
+  });
+  assert.match(
+    escapedMarkup,
+    /href="\/\?label=&quot;home&quot;&amp;mode=&lt;safe&gt;"/,
+  );
 });

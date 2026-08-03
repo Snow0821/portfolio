@@ -1,3 +1,5 @@
+import { escapeAttribute, escapeHtml } from "../utils/html.js";
+
 export function renderPresentationSlides(
   container,
   topicData,
@@ -92,15 +94,4 @@ function renderCardFooter(slide) {
       <span>${slide.footerRight ?? ""}</span>
     </div>
   `;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-
-function escapeAttribute(value) {
-  return escapeHtml(value).replaceAll('"', "&quot;");
 }

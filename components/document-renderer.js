@@ -1,3 +1,5 @@
+import { escapeHtml } from "../utils/html.js";
+
 export function renderReadingDocument(container, topicData) {
   if (!container || !topicData?.doc) return;
 
@@ -52,11 +54,4 @@ export function renderReadingDocument(container, topicData) {
       ${sections}
     </article>
   `;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
 }

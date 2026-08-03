@@ -2,7 +2,7 @@
 
 ## 진행 중
 
-- 일반 모듈화 inline 실행 중 — Task 1 테스트 기반 분리 완료, Task 2 HTML 안전 유틸리티 진행 예정
+- 일반 모듈화 inline 실행 중 — Task 2 HTML 안전 유틸리티 완료, Task 3 presentation 모듈 진행 예정
 
 ## 확인된 문제
 

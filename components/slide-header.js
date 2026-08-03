@@ -1,12 +1,6 @@
-const BaseElement = globalThis.HTMLElement ?? class {};
+import { escapeAttribute, escapeHtml } from "../utils/html.js";
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
+const BaseElement = globalThis.HTMLElement ?? class {};
 
 export function createSlideHeaderMarkup({
   title = "",
@@ -22,12 +16,12 @@ export function createSlideHeaderMarkup({
   return `
     <header class="slide-header">
       <div class="slide-header-left">
-        <a href="${escapeHtml(backHref)}" class="slide-back-btn" title="세미나 목록으로 이동">← Seminars</a>
+        <a href="${escapeAttribute(backHref)}" class="slide-back-btn" title="세미나 목록으로 이동">← Seminars</a>
         <h1 class="slide-title-text">${escapeHtml(title)}</h1>
         ${badge ? `<span class="slide-badge${safeBadgeClass ? ` ${safeBadgeClass}` : ""}">${escapeHtml(badge)}</span>` : ""}
       </div>
       <div class="slide-header-right">
-        <a href="${escapeHtml(altHref)}" class="slide-action-btn" title="${escapeHtml(altText)}">
+        <a href="${escapeAttribute(altHref)}" class="slide-action-btn" title="${escapeAttribute(altText)}">
           <span>${escapeHtml(altText)}</span>
         </a>
         ${

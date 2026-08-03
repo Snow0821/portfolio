@@ -1,3 +1,5 @@
+import { escapeAttribute } from "../utils/html.js";
+
 const BaseElement = globalThis.HTMLElement ?? class {};
 
 function currentAttribute(current, destination) {
@@ -9,12 +11,15 @@ export function createSiteHeaderMarkup({
   seminarsHref = "./pages/seminars/",
   current = "",
 } = {}) {
+  const safeHomeHref = escapeAttribute(homeHref);
+  const safeSeminarsHref = escapeAttribute(seminarsHref);
+
   return `
     <header class="site-header">
-      <a class="site-header__brand" href="${homeHref}">Snow Choi</a>
+      <a class="site-header__brand" href="${safeHomeHref}">Snow Choi</a>
       <nav class="site-header__nav" aria-label="주요 메뉴">
-        <a href="${homeHref}"${currentAttribute(current, "about")}>About</a>
-        <a href="${seminarsHref}"${currentAttribute(current, "seminars")}>Seminars</a>
+        <a href="${safeHomeHref}"${currentAttribute(current, "about")}>About</a>
+        <a href="${safeSeminarsHref}"${currentAttribute(current, "seminars")}>Seminars</a>
       </nav>
     </header>
   `;
