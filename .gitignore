@@ -1,6 +1,0 @@
-node_modules/
-.vercel/
-.worktrees/
-.env
-.env.*
-!.env.example
