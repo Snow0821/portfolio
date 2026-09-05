@@ -1,22 +1,160 @@
-<html>
+<!doctype html>
+<html lang="ko">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="아이디어를 화면으로 만드는 작은 디지털 포트폴리오">
+        <title>JIN — Digital Playground</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --ink: #18211f;
+                --paper: #f3f1ea;
+                --muted: #68716c;
+                --line: #d9ddd5;
+                --lime: #d8f26b;
+                --coral: #ff765e;
+                --blue: #a8c8ff;
+            }
 
+            * { box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
+            body {
+                margin: 0;
+                color: var(--ink);
+                background: var(--paper);
+                font-family: "Space Grotesk", sans-serif;
+            }
+            a { color: inherit; text-decoration: none; }
+            .wrap { width: min(1160px, calc(100% - 48px)); margin: auto; }
+            .mono { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+            .topbar {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 26px 0; border-bottom: 1px solid var(--line);
+            }
+            .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.04em; }
+            .brand-mark { width: 24px; height: 24px; display: grid; place-items: center; background: var(--ink); color: var(--lime); border-radius: 50%; font-size: 13px; }
+            nav { display: flex; gap: 28px; color: var(--muted); font-size: 14px; }
+            nav a:hover { color: var(--ink); }
+            .hero { padding: 104px 0 110px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 72px; align-items: end; }
+            .eyebrow { display: flex; align-items: center; gap: 10px; color: var(--muted); margin-bottom: 23px; }
+            .eyebrow i { display: block; width: 8px; height: 8px; background: var(--coral); border-radius: 50%; }
+            h1 { max-width: 720px; margin: 0; font-size: clamp(56px, 8.5vw, 116px); line-height: .89; letter-spacing: -.085em; font-weight: 600; }
+            h1 em { color: var(--coral); font-style: normal; }
+            .hero-copy { max-width: 310px; margin: 0 0 4px auto; color: var(--muted); line-height: 1.65; font-size: 15px; }
+            .hero-copy strong { color: var(--ink); font-weight: 500; }
+            .scroll-note { margin-top: 30px; display: flex; gap: 13px; align-items: center; color: var(--muted); }
+            .scroll-note span { width: 28px; height: 1px; background: var(--coral); }
+            .work-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 17px; border-bottom: 1px solid var(--ink); }
+            .work-head h2 { margin: 0; font-size: 27px; letter-spacing: -.05em; }
+            .work-head p { margin: 0; color: var(--muted); }
+            .projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 28px 0 112px; }
+            .project { min-height: 350px; display: flex; flex-direction: column; justify-content: space-between; padding: 22px; border: 1px solid var(--line); background: #fff; transition: transform .25s ease, box-shadow .25s ease; }
+            .project:hover { transform: translateY(-5px); box-shadow: 8px 8px 0 var(--ink); }
+            .project-visual { height: 210px; position: relative; overflow: hidden; display: grid; place-items: center; }
+            .visual-green { background: var(--lime); }
+            .visual-blue { background: var(--blue); }
+            .visual-coral { background: var(--coral); }
+            .visual-ink { background: var(--ink); }
+            .visual-label { padding: 14px 18px; background: #fff; border: 1px solid var(--ink); font-size: 22px; letter-spacing: -.06em; transform: rotate(-5deg); }
+            .visual-ring { width: 126px; height: 126px; border: 20px solid var(--ink); border-radius: 50%; box-shadow: 27px 0 0 -7px var(--coral); }
+            .visual-grid { width: 76%; height: 72%; background: repeating-linear-gradient(90deg, transparent 0 28px, rgba(24,33,31,.28) 29px 30px), repeating-linear-gradient(0deg, transparent 0 28px, rgba(24,33,31,.28) 29px 30px); transform: rotate(-8deg); }
+            .visual-word { color: var(--lime); font-size: 66px; line-height: .75; font-weight: 600; letter-spacing: -.1em; transform: rotate(8deg); }
+            .project-info { display: flex; justify-content: space-between; align-items: end; gap: 18px; padding-top: 20px; }
+            .project-info h3 { margin: 0 0 7px; font-size: 20px; letter-spacing: -.04em; }
+            .project-info p { margin: 0; color: var(--muted); font-size: 13px; }
+            .project-arrow { font-size: 24px; }
+            .about { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; border-top: 1px solid var(--ink); padding: 26px 0 112px; }
+            .about h2 { margin: 0; font-size: 46px; line-height: .95; letter-spacing: -.07em; }
+            .about-copy { color: var(--muted); line-height: 1.7; max-width: 410px; }
+            .about-copy p { margin: 0 0 22px; }
+            .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+            .tag { padding: 8px 11px; border: 1px solid var(--line); color: var(--ink); font-family: "DM Mono", monospace; font-size: 11px; }
+            footer { border-top: 1px solid var(--ink); padding: 22px 0 35px; display: flex; justify-content: space-between; color: var(--muted); }
+            .chat-toggle { position: fixed; right: 25px; bottom: 24px; z-index: 4; border: 0; padding: 15px 18px; color: var(--ink); background: var(--lime); font: 500 13px "DM Mono", monospace; cursor: pointer; box-shadow: 4px 4px 0 var(--ink); }
+            .chat-toggle:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+            #chatarea { position: fixed; right: 25px; bottom: 78px; z-index: 3; width: min(320px, calc(100% - 50px)); padding: 18px; background: var(--ink); color: var(--paper); box-shadow: 7px 7px 0 var(--coral); display: none; }
+            #chatarea.open { display: block; animation: pop .2s ease-out; }
+            .chat-title { display: flex; justify-content: space-between; margin-bottom: 17px; color: var(--lime); }
+            #chat { min-height: 45px; margin: 0 0 15px; padding: 11px; color: var(--ink); background: var(--paper); font-size: 13px; line-height: 1.5; }
+            .chat-form { display: flex; gap: 7px; }
+            #input { min-width: 0; flex: 1; padding: 10px; border: 1px solid #52605b; outline: 0; color: var(--paper); background: transparent; font: 13px "Space Grotesk", sans-serif; }
+            #input:focus { border-color: var(--lime); }
+            .chat-form button { border: 0; padding: 0 13px; background: var(--coral); color: var(--ink); font-weight: 700; cursor: pointer; }
+            @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+            @media (max-width: 700px) {
+                .wrap { width: min(100% - 30px, 560px); }
+                .topbar { padding: 19px 0; } nav { gap: 15px; font-size: 12px; }
+                .hero { display: block; padding: 75px 0 82px; }
+                .hero-copy { margin: 30px 0 0; }
+                .projects, .about { grid-template-columns: 1fr; }
+                .projects { padding-bottom: 80px; }
+                .about { gap: 30px; padding-bottom: 80px; }
+                .about h2 { font-size: 40px; }
+                .project { min-height: 320px; }
+                footer { font-size: 11px; }
+            }
+        </style>
     </head>
     <body>
-        <h1>나의 작은 챗봇</h1>
-        <a href="newpage.html">링크</a>
+        <header class="wrap topbar">
+            <a class="brand" href="index.html"><span class="brand-mark">J</span> JIN'S PLAYGROUND</a>
+            <nav aria-label="주요 메뉴"><a href="#work">WORK</a><a href="#about">ABOUT</a><a href="newpage.html">GAME ↗</a></nav>
+        </header>
 
-        <div>
-            <p id = "chat"></p>
-            <input value = 1 id = "input">
-            <button onclick="send()">전송</button>
+        <main class="wrap">
+            <section class="hero">
+                <div>
+                    <div class="eyebrow mono"><i></i> Independent digital maker</div>
+                    <h1>작은 생각을<br><em>큰 화면</em>으로.</h1>
+                    <div class="scroll-note mono"><span></span> SCROLL TO EXPLORE</div>
+                </div>
+                <p class="hero-copy">안녕하세요. 저는 <strong>호기심을 인터랙션으로 바꾸는 사람</strong>입니다. 코드를 가지고 유용하고, 조금은 엉뚱한 디지털 경험을 만듭니다.</p>
+            </section>
+
+            <section id="work">
+                <div class="work-head"><h2>Selected experiments</h2><p class="mono">03 / 2024—2025</p></div>
+                <div class="projects">
+                    <a class="project" href="newpage.html"><div class="project-visual visual-green"><div class="visual-label">FLAPPY / BIRD</div></div><div class="project-info"><div><h3>Flappy Bird Game</h3><p>Vanilla JS · Interaction</p></div><span class="project-arrow">↗</span></div></a>
+                    <article class="project"><div class="project-visual visual-blue"><div class="visual-ring"></div></div><div class="project-info"><div><h3>Motion Studies</h3><p>CSS · Experiment · In progress</p></div><span class="project-arrow">↗</span></div></article>
+                    <article class="project"><div class="project-visual visual-coral"><div class="visual-grid"></div></div><div class="project-info"><div><h3>Grid Notes</h3><p>Layout · Typography · Archive</p></div><span class="project-arrow">↗</span></div></article>
+                    <article class="project"><div class="project-visual visual-ink"><div class="visual-word">HELLO<br>WORLD</div></div><div class="project-info"><div><h3>Little Chatbot</h3><p>HTML · JavaScript · This page</p></div><span class="project-arrow">↗</span></div></article>
+                </div>
+            </section>
+
+            <section id="about" class="about">
+                <h2>Curious by<br>default.</h2>
+                <div class="about-copy"><p>새로운 것을 눌러보고, 부숴보고, 다시 조립하는 일을 좋아합니다. 이곳은 그 과정에서 나온 작은 결과물들을 모아두는 개인 실험실입니다.</p><div class="tags"><span class="tag">HTML / CSS</span><span class="tag">JAVASCRIPT</span><span class="tag">UI THINKING</span><span class="tag">✦ ALWAYS LEARNING</span></div></div>
+            </section>
+        </main>
+
+        <footer class="wrap"><span class="mono">© 2025 JIN</span><span class="mono">Made with curiosity</span></footer>
+
+        <button class="chat-toggle" onclick="toggleChat()" aria-expanded="false">CHAT WITH ME ↗</button>
+        <div id="chatarea" aria-live="polite">
+            <div class="chat-title mono"><span>JIN'S MINI BOT</span><span>● ONLINE</span></div>
+            <p id="chat">무엇이든 한마디 남겨주세요.</p>
+            <form class="chat-form" onsubmit="send(event)"><input id="input" autocomplete="off" placeholder="Say hello..."><button type="submit">SEND</button></form>
         </div>
         <script>
-            function send(){
-                const text = document.querySelector("#input")
-                const chat = document.querySelector("#chat")
+            function toggleChat() {
+                const area = document.querySelector("#chatarea");
+                const button = document.querySelector(".chat-toggle");
+                area.classList.toggle("open");
+                button.setAttribute("aria-expanded", area.classList.contains("open"));
+                if (area.classList.contains("open")) document.querySelector("#input").focus();
+            }
 
-                chat.innerHTML += text.value
+            function send(event) {
+                event.preventDefault();
+                const input = document.querySelector("#input");
+                const chat = document.querySelector("#chat");
+                const message = input.value.trim();
+                if (!message) return;
+                chat.textContent = `"${message}" 라고요? 멋진 생각이네요. ✦`;
+                input.value = "";
             }
         </script>
     </body>
