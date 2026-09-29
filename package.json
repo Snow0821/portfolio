@@ -7,7 +7,7 @@
     "prepare:assets": "node ocr-app/scripts/assets.mjs",
     "dev": "npm run prepare:assets && vite ocr-app/web --config ocr-app/vite.config.js --host 0.0.0.0 --port 4173",
     "build": "npm run prepare:assets && node scripts/build.mjs",
-    "test": "cd ocr-app && node tests/structure.mjs"
+    "test": "node --check ocr-app/web/app.js && cd ocr-app && node tests/structure.mjs && node tests/regressions.mjs"
   },
   "dependencies": {
     "@tesseract.js-data/eng": "1.0.0",

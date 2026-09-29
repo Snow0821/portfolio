@@ -2,7 +2,7 @@ export const escapeXML = value => String(value??'').replace(/[\u0000-\u0008\u000
 const xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 
 export async function createHWPX(pages, options, template, JSZip) {
-  if(!pages.some(p=>p.blocks.length)) throw new Error('먼저 사진을 읽거나 문단을 추가해 주세요.');
+  if(!pages.some(p=>p.blocks.length)) throw new Error('먼저 사진을 변환해 주세요.');
   const zip = new JSZip(),ns=Object.entries(template.namespaces).map(([k,v])=>`xmlns:${k}="${v}"`).join(' ');
   const columns=Number(options.columns)===1?1:2,font=Math.min(16,Math.max(8,Number(options.fontSize)||10));
   const columnWidth=Math.floor((59528-8504-(columns-1)*2268)/columns),pictureWidth=columnWidth-800;
