@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#203ecf">
-  <meta name="description" content="시험지 사진을 브라우저에서 읽고, 내용을 수정해 편집 가능한 한글 HWPX 문서로 저장하세요.">
+  <meta name="description" content="시험지 사진을 편집 가능한 한글 HWPX 문서로 변환하세요. 글자와 배치는 한글에서 수정할 수 있습니다.">
   <title>한글 렌즈 — 사진에서 한글 문서로</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23203ecf'/%3E%3Cpath d='M8 9h16M10 15h12M10 21h12M8 26V6h16v20' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./styles.css">
@@ -19,7 +19,7 @@
   </header>
 
   <main>
-    <section class="workflow" aria-label="작업 순서"><span class="active"><b>1</b>사진 추가</span><span><b>2</b>인식·수정</span><span><b>3</b>한글 저장</span></section>
+    <section class="workflow" aria-label="작업 순서"><span class="active"><b>1</b>사진 추가</span><span><b>2</b>사진 인식</span><span><b>3</b>HWPX 저장</span></section>
     <div class="workspace">
       <aside class="sidebar">
         <div class="sidebar-heading"><h1>문서 만들기</h1><span id="page-count">0장</span></div>
@@ -34,40 +34,33 @@
           <button id="run-ocr" class="button primary wide" disabled>전체 사진 읽기</button>
           <button id="cancel-ocr" class="button subtle wide" hidden>인식 중단</button>
         </div>
-        <details class="document-options" open>
+        <details class="document-options">
           <summary>저장할 문서 설정</summary>
           <label for="document-name">문서 이름</label><input id="document-name" value="나의 문제지" maxlength="100">
           <div class="setting-row"><div><label for="output-columns">본문 배치</label><select id="output-columns"><option value="2">A4 · 2단</option><option value="1">A4 · 1단</option></select></div><div><label for="font-size">글자 크기</label><select id="font-size"><option value="9">9 pt</option><option value="10" selected>10 pt</option><option value="11">11 pt</option><option value="12">12 pt</option></select></div></div>
           <label for="source-label">문항 출처 <span class="optional">선택</span></label><input id="source-label" placeholder="예: 2026 중3 과학" maxlength="100">
           <label class="check"><input type="checkbox" id="endnotes" checked><span>문제 번호를 미주로 만들기</span></label>
         </details>
-        <p class="privacy-note">사진과 인식 결과는 서버로 전송하지 않습니다. 새로고침 전에 작업을 저장해 주세요.</p>
+        <p class="privacy-note">사진은 내 기기에서 처리합니다. 새로고침 전에 HWPX를 내려받아 주세요.</p>
       </aside>
 
       <section class="work-area">
         <div id="progress-panel" class="progress-panel" hidden aria-live="polite"><div><strong id="progress-title">인식 준비 중</strong><span id="progress-percent">0%</span></div><progress id="progress" max="1" value="0"></progress><p id="progress-detail">처음 사용할 때 인식 모델을 불러옵니다.</p></div>
         <div id="notice" role="status" class="notice" hidden></div>
-        <div class="mobile-tabs" role="group" aria-label="화면 선택"><button data-pane="source" class="selected">원본</button><button data-pane="result">인식 결과</button></div>
-        <div class="panes" data-mobile-pane="source">
           <section class="source-pane panel" aria-labelledby="source-heading">
             <div class="panel-heading"><h2 id="source-heading">원본 사진</h2><span id="source-page-label" class="muted">사진을 선택해 주세요</span></div>
             <div class="source-toolbar"><button id="rotate" class="button small" disabled>90° 회전</button><label class="zoom-label" for="zoom">확대<select id="zoom"><option value="1">맞춤</option><option value="1.5">150%</option><option value="2">200%</option></select></label><button id="crop-toggle" class="button small" disabled>그림 영역 지정</button></div>
             <div id="source-scroll" class="source-scroll">
-              <div id="empty-source" class="empty-source"><div class="paper-illustration" aria-hidden="true"><span>가나다</span><i></i><i></i><div class="tiny-columns"><i></i><i></i></div></div><h3>사진 한 장으로 시작하세요</h3><p>왼쪽에서 사진을 추가하거나<br>예제로 전체 과정을 살펴보세요.</p></div>
+              <div id="empty-source" class="empty-source"><div class="paper-illustration" aria-hidden="true"><span>가나다</span><i></i><i></i><div class="tiny-columns"><i></i><i></i></div></div><h3>사진 한 장으로 시작하세요</h3><p>사진을 추가하거나<br>예제로 전체 과정을 살펴보세요.</p></div>
               <div id="image-stage" class="image-stage" hidden><img id="source-image" alt="선택한 원본 사진" draggable="false"><div id="crop-overlay" class="crop-overlay"></div><div id="selection-box" class="selection-box" hidden></div></div>
             </div>
             <div id="crop-actions" class="crop-actions" hidden><span>원본에서 그림의 양 끝을 눌러 범위를 정하세요.</span><button id="add-crop" class="button primary small" disabled>그림 추가</button><button id="cancel-crop" class="button small">취소</button></div>
+            <div id="region-list" class="region-list" role="group" aria-label="선택한 그림 영역" hidden></div>
             <p class="panel-footnote">그래프·가계도는 영역을 지정하면 그림으로 삽입됩니다.</p>
           </section>
 
-          <section class="result-pane panel" aria-labelledby="result-heading">
-            <div class="panel-heading"><h2 id="result-heading">인식 결과</h2><span id="block-count" class="muted">0개 블록</span></div>
-            <div class="result-toolbar"><span id="review-count" class="review-pill">인식 후 수정할 수 있어요</span><button id="add-block" class="button small" disabled>문단 추가</button></div>
-            <div id="editor" class="editor"><div class="empty-result"><span class="text-symbol" aria-hidden="true">Aa</span><h3>편집할 글자가 여기에 나타납니다</h3><p>문제·보기·선지를 확인하고<br>필요한 부분을 직접 수정하세요.</p><div class="empty-tags"><span>문제</span><span>보기 표</span><span>그림</span></div></div></div>
-            <div class="result-footer"><button id="save-project" class="button small" disabled>작업 저장</button><label for="load-project" class="button small">작업 불러오기<input type="file" id="load-project" accept=".json,application/json" hidden></label><button id="copy-text" class="button small" disabled>글자 복사</button></div>
-          </section>
-        </div>
-        <p class="bottom-note">흐린 글자·수식·필기가 겹친 곳은 원본과 대조하세요. 저장한 HWPX의 최종 쪽 배치는 한글에서 확인할 수 있습니다.</p>
+        <div class="conversion-summary" id="conversion-summary" aria-live="polite">사진을 읽고 HWPX로 내려받으세요.</div>
+        <p class="bottom-note">글자 수정과 최종 편집은 내려받은 문서를 한글에서 열어 진행하세요.</p>
       </section>
     </div>
   </main>
