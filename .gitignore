@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.vercel/
+.sites-runtime/
+ocr-app/web/vendor/
+ocr-app/web/models/
+ocr-app/test-results/

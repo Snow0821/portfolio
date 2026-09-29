@@ -43,3 +43,8 @@ A modern, interactive Flappy Bird-style game built with vanilla HTML, CSS, and J
 - **Responsive**: Works on different screen sizes
 
 Enjoy! 🚀
+
+
+## 한글 렌즈
+
+시험지 사진 → 한국어 OCR → 편집 가능한 HWPX 변환 서비스가 `/ocr/`에 추가되었습니다. 사용법과 개발 안내는 [ocr-app/README.md](ocr-app/README.md)를 참고하세요.

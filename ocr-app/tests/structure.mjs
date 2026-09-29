@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import JSZip from 'jszip';
+import {createHWPX,escapeXML} from '../web/hwpx.js';
+import {classify,blocksFromResult,orderBlocks,BrowserOCR} from '../web/ocr.js';
+const template=JSON.parse(await readFile(new URL('../web/template.json',import.meta.url),'utf8'));
+assert.equal(classify('12. 옳은 것은?'),'question');
+assert.equal(classify('① 4 m'),'choice');
+assert.equal(classify('ㄱ. 보기 내용'),'box');
+assert.equal(classify('[15~16] 공통 지문'),'text');
+assert.equal(escapeXML('가 & <보기>\u0001'),'가 &amp; &lt;보기&gt;');
+const line=(text,y)=>({text,bbox:{x0:3,y0:y,x1:90,y1:y+10},confidence:90});
+const blocks=blocksFromResult({blocks:[{paragraphs:[{lines:[line('1. 문제',10),line('계속되는 문장',25),line('① 정답을 고르시오.',40)]}]}]},1,200);
+assert.equal(blocks.length,2);assert.equal(blocks[0].text,'1. 문제 계속되는 문장');assert.equal(blocks[0].bbox.x0,203);
+assert.equal(orderBlocks([{column:1,bbox:{y0:0}},{column:0,bbox:{y0:100}}])[0].column,0);
+// Cancelling a hung initializer must immediately free the UI, then terminate its late worker.
+let resolveWorker,terminated=false;
+globalThis.window={Tesseract:{createWorker:()=>new Promise(r=>resolveWorker=r)}};
+const engine=new BrowserOCR(()=>{}),init=engine.init();
+await engine.cancel();await assert.rejects(init,/중단/);
+resolveWorker({terminate:async()=>{terminated=true;}});await new Promise(r=>setTimeout(r,0));assert.equal(terminated,true);
+delete globalThis.window;
+const pixel='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/0f8AAAAASUVORK5CYII=';
+const pages=[{blocks:[{type:'question',text:'1. <보기>에서 옳은 것은?'},{type:'box',text:'<보기>\nㄱ. 한국어 & English'},{type:'box',text:'ㄴ. 다음 문장'},{type:'image',src:pixel,width:100,height:80,text:'그래프'},{type:'choice',text:'① ㄱ   ② ㄴ'},{type:'question',text:'2. 두 번째 문항'}]}];
+await mkdir('test-results',{recursive:true});
+for(const columns of [1,2])for(const endnotes of [true,false]){
+ const bytes=await createHWPX(pages,{columns,endnotes,title:'검증 문서',source:'연습 문제',fontSize:11},template,JSZip);
+ const z=await JSZip.loadAsync(bytes),section=await z.file('Contents/section0.xml').async('string');
+ assert.equal(await z.file('mimetype').async('string'),'application/hwp+zip');
+ assert.equal((section.match(/<hp:endNote /g)||[]).length,endnotes?2:0);
+ assert.equal((section.match(/<hp:tbl /g)||[]).length,1);
+ assert.ok(section.includes('연습 문제 #2'));
+ assert.ok(section.includes('한국어 &amp; English'));
+ assert.ok(section.includes(`colCount="${columns}"`));
+ assert.ok(z.file('BinData/image1.png'));
+ assert.ok((await z.file('Contents/header.xml').async('string')).includes('height="1100"'));
+ await writeFile(`test-results/export-${columns}-${endnotes}.hwpx`,bytes);
+}
+await assert.rejects(createHWPX([],{},{},JSZip),/먼저/);
+console.log('PASS: OCR ordering, cancellation, XML escaping, HWPX 1/2 columns, tables, pictures, endnotes and source numbers.');
