@@ -1,8 +1,8 @@
-import { API_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
+import { API_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ADMIN_LOGIN_EMAIL } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 const STORAGE_KEY = 'mint-session-v1';
-let session = null, todos = [], signup = false, generation = 0, refreshing = null;
+let session = null, todos = [], generation = 0, refreshing = null;
 
 function message(id, text = '', error = false) {
   $(id).textContent = text;
@@ -100,7 +100,7 @@ async function apiRequest(path = '', method = 'GET', body) {
 function showTodos() {
   $('auth-panel').hidden = true;
   $('todo-panel').hidden = false;
-  $('account-email').textContent = session?.user?.email || '나의 계정';
+  $('account-email').textContent = session?.user?.email === ADMIN_LOGIN_EMAIL ? 'admin' : session?.user?.email || '나의 계정';
   $('password').value = '';
   message('auth-message');
 }
@@ -157,31 +157,18 @@ async function changeTodo(item, todo, method, body) {
   }
 }
 
-$('auth-switch').addEventListener('click', () => {
-  signup = !signup;
-  $('auth-title').textContent = signup ? '나의 계정 만들기' : '나의 목록에 로그인';
-  $('auth-submit').textContent = signup ? '계정 만들기' : '로그인';
-  $('auth-switch').textContent = signup ? '로그인' : '계정 만들기';
-  $('switch-copy').textContent = signup ? '이미 계정이 있나요?' : '처음 방문했나요?';
-  $('password').autocomplete = signup ? 'new-password' : 'current-password';
-  message('auth-message');
-});
-
 $('auth-form').addEventListener('submit', async (event) => {
   event.preventDefault();
-  $('auth-submit').disabled = true; $('auth-switch').disabled = true;
-  message('auth-message', signup ? '계정을 만드는 중이에요.' : '로그인하는 중이에요.');
+  $('auth-submit').disabled = true;
+  message('auth-message', '로그인하는 중이에요.');
   try {
-    const data = await authRequest(signup ? 'signup' : 'token?grant_type=password', { email: $('email').value.trim(), password: $('password').value });
-    if (!data?.access_token) {
-      $('password').value = '';
-      message('auth-message', '이메일에서 가입 확인 링크를 눌러주세요. 확인 후 이 화면으로 돌아와 로그인하면 돼요.');
-      if (signup) { signup = false; $('auth-title').textContent = '나의 목록에 로그인'; $('auth-submit').textContent = '로그인'; $('auth-switch').textContent = '계정 만들기'; $('switch-copy').textContent = '처음 방문했나요?'; $('password').autocomplete = 'current-password'; }
-      return;
-    }
+    const username = $('username').value.trim();
+    const email = username.toLowerCase() === 'admin' ? ADMIN_LOGIN_EMAIL : username;
+    const data = await authRequest('token?grant_type=password', { email, password: $('password').value });
+    if (!data?.access_token) throw new Error('로그인 응답을 확인하지 못했어요. 다시 시도해 주세요.');
     generation += 1; saveSession(data); showTodos(); await loadTodos();
-  } catch (error) { message('auth-message', error.status === 400 ? '이메일·비밀번호 또는 이메일 확인 상태를 확인해 주세요.' : error.message, true); }
-  finally { $('auth-submit').disabled = false; $('auth-switch').disabled = false; }
+  } catch (error) { message('auth-message', [400, 401, 422].includes(error.status) ? '아이디나 비밀번호를 확인해 주세요.' : error.message, true); }
+  finally { $('auth-submit').disabled = false; }
 });
 
 $('todo-form').addEventListener('submit', async (event) => {

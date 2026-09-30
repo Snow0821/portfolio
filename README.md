@@ -1,50 +1,12 @@
-# 🎮 Flappy Bird Game
+# Mint
 
-A modern, interactive Flappy Bird-style game built with vanilla HTML, CSS, and JavaScript.
+작은 개인용 Todo 앱입니다. 첫 화면(`/`)과 `/mint/`에서 같은 앱을 열 수 있습니다.
 
-## Features
+- 로그인: 아이디 `admin`을 Supabase Auth 계정에 연결합니다. 비밀번호는 코드에 저장하지 않습니다.
+- 화면: HTML, CSS, JavaScript / Vercel
+- API: Render의 Mint FastAPI 서비스
+- 데이터: Supabase PostgreSQL, 계정별 RLS
+- 기존 Hangul Lens 앱은 `/ocr/`에서 사용할 수 있습니다.
 
-✨ **Smooth Gameplay**
-- Click or press Space to make the bird fly up
-- Gravity-based physics for realistic falling
-- Progressive difficulty that increases as you score
-
-🎯 **Game Mechanics**
-- Avoid the pipes to score points
-- Difficulty increases every 5 points (pipes move faster)
-- Real-time score tracking
-- Collision detection for both top and bottom pipes
-
-🎨 **Visual Design**
-- Beautiful gradient backgrounds
-- Smooth animations and transitions
-- Responsive game container
-- Color-coded UI elements
-
-## How to Play
-
-1. Click anywhere or press **Space** to make the bird fly up
-2. Avoid the moving pipes
-3. Pass through the gap between pipes to score
-4. The game gets harder as your score increases
-5. Game Over when you hit a pipe or go out of bounds
-6. Click **Play Again** to restart
-
-## Controls
-
-- **Mouse Click** - Make bird fly up
-- **Spacebar** - Make bird fly up (or restart after game over)
-
-## Technical Details
-
-- **Language**: Vanilla JavaScript (no frameworks)
-- **Canvas**: DOM-based with CSS animations
-- **Performance**: 60 FPS using requestAnimationFrame
-- **Responsive**: Works on different screen sizes
-
-Enjoy! 🚀
-
-
-## 한글 렌즈
-
-시험지 사진 → 한국어 OCR → 편집 가능한 HWPX 변환 서비스가 `/ocr/`에 추가되었습니다. 사용법과 개발 안내는 [ocr-app/README.md](ocr-app/README.md)를 참고하세요.
+`npm ci`, `npm test`, `npm run build`로 검증하고 빌드합니다.
+`mint/config.js`에는 API 주소와 공개용 Supabase 키만 들어 있습니다.

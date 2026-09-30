@@ -6,15 +6,14 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="내 계정에 저장하는 작은 할 일 목록">
   <title>Mint — 나의 할 일</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.js"></script>
+  <link rel="icon" href="/mint/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/mint/styles.css">
+  <script type="module" src="/mint/app.js"></script>
 </head>
 <body>
   <main class="shell">
     <header class="brand-row">
-      <a class="brand" href="./" aria-label="Mint 홈"><span class="brand-icon" aria-hidden="true">✓</span>Mint<span class="brand-dot">.</span></a>
-      <a class="back-link" href="/">포트폴리오 ↗</a>
+      <a class="brand" href="/" aria-label="Mint 홈"><span class="brand-icon" aria-hidden="true">✓</span>Mint<span class="brand-dot">.</span></a>
     </header>
     <div class="intro"><p class="eyebrow">A LITTLE SPACE FOR YOUR DAY</p><h1>하나씩, 가볍게.</h1><p>오늘의 할 일을 적고, 끝낸 일에 체크해요.</p></div>
 
@@ -22,12 +21,11 @@
       <div class="card-heading"><h2 id="auth-title">나의 목록에 로그인</h2><span class="private-badge">개인 공간</span></div>
       <p class="subcopy">로그인한 계정의 할 일만 볼 수 있어요.</p>
       <form id="auth-form">
-        <label for="email">이메일</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
-        <label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" placeholder="8자 이상" required minlength="8" maxlength="128">
+        <label for="username">아이디</label><input id="username" type="text" autocomplete="username" placeholder="admin" required maxlength="254" autocapitalize="none" spellcheck="false">
+        <label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" placeholder="비밀번호를 입력해 주세요" required maxlength="128">
         <button id="auth-submit" class="primary full" type="submit">로그인</button>
       </form>
       <p id="auth-message" class="message" role="status" aria-live="polite"></p>
-      <div class="switch-row"><span id="switch-copy">처음 방문했나요?</span><button id="auth-switch" class="text-button" type="button">계정 만들기</button></div>
     </section>
 
     <section id="todo-panel" class="card" aria-labelledby="todo-title" hidden>
