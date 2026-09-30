@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="내 계정에 저장하는 작은 할 일 목록">
+  <title>Mint — 나의 할 일</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="brand-row">
+      <a class="brand" href="./" aria-label="Mint 홈"><span class="brand-icon" aria-hidden="true">✓</span>Mint<span class="brand-dot">.</span></a>
+      <a class="back-link" href="/">포트폴리오 ↗</a>
+    </header>
+    <div class="intro"><p class="eyebrow">A LITTLE SPACE FOR YOUR DAY</p><h1>하나씩, 가볍게.</h1><p>오늘의 할 일을 적고, 끝낸 일에 체크해요.</p></div>
+
+    <section id="auth-panel" class="card" aria-labelledby="auth-title">
+      <div class="card-heading"><h2 id="auth-title">나의 목록에 로그인</h2><span class="private-badge">개인 공간</span></div>
+      <p class="subcopy">로그인한 계정의 할 일만 볼 수 있어요.</p>
+      <form id="auth-form">
+        <label for="email">이메일</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+        <label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" placeholder="8자 이상" required minlength="8" maxlength="128">
+        <button id="auth-submit" class="primary full" type="submit">로그인</button>
+      </form>
+      <p id="auth-message" class="message" role="status" aria-live="polite"></p>
+      <div class="switch-row"><span id="switch-copy">처음 방문했나요?</span><button id="auth-switch" class="text-button" type="button">계정 만들기</button></div>
+    </section>
+
+    <section id="todo-panel" class="card" aria-labelledby="todo-title" hidden>
+      <div class="card-heading"><h2 id="todo-title">나의 할 일</h2><span id="remaining" class="count">0개 남음</span></div>
+      <form id="todo-form" class="add-row"><label class="sr-only" for="todo-title-input">새 할 일</label><input id="todo-title-input" placeholder="무엇을 해볼까요?" maxlength="280" required autocomplete="off"><button id="add-button" class="primary" type="submit">추가</button></form>
+      <p id="todo-message" class="message" role="status" aria-live="polite"></p>
+      <ul id="todo-list" class="todo-list"></ul>
+      <div id="empty-state" class="empty"><span class="empty-icon" aria-hidden="true">✓</span><p>아직 할 일이 없어요.</p><span>첫 번째 할 일을 적어보세요.</span></div>
+      <div class="list-footer"><span id="account-email"></span><div><button id="reload-button" class="text-button" type="button">새로고침</button><button id="logout-button" class="text-button muted" type="button">로그아웃</button></div></div>
+    </section>
+    <p class="footnote">내 할 일은 내 계정에 저장돼요.</p>
+    <noscript>이 앱을 사용하려면 JavaScript를 활성화해 주세요.</noscript>
+  </main>
+</body>
+</html>
